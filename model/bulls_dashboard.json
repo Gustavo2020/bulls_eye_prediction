@@ -1,7 +1,7 @@
 {
   "team": "Chicago Bulls",
   "abbreviation": "CHI",
-  "last_updated": "2026-02-24",
+  "last_updated": "2026-02-25",
   "model_metrics": {
     "val_mae": 4.01,
     "val_rmse": 5.28
@@ -746,5 +746,172 @@
       ]
     }
   ],
-  "next_game": null
+  "next_game": {
+    "game_date": "2026-02-26",
+    "opponent": "POR",
+    "is_home": 1,
+    "predictions": [
+      {
+        "player_name": "Anfernee Simons",
+        "pts_predicted": 18.9,
+        "pts_roll_5": 17.4,
+        "pts_season_avg": 19.4,
+        "days_rest": 4
+      },
+      {
+        "player_name": "Josh Giddey",
+        "pts_predicted": 16.5,
+        "pts_roll_5": 13.4,
+        "pts_season_avg": 14.9,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Nikola Vu\u010devi\u0107",
+        "pts_predicted": 15.6,
+        "pts_roll_5": 16.8,
+        "pts_season_avg": 17.9,
+        "days_rest": 25
+      },
+      {
+        "player_name": "Coby White",
+        "pts_predicted": 14.8,
+        "pts_roll_5": 17.8,
+        "pts_season_avg": 16.6,
+        "days_rest": 22
+      },
+      {
+        "player_name": "Matas Buzelis",
+        "pts_predicted": 14.5,
+        "pts_roll_5": 13.4,
+        "pts_season_avg": 11.3,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Ayo Dosunmu",
+        "pts_predicted": 14.0,
+        "pts_roll_5": 20.2,
+        "pts_season_avg": 11.5,
+        "days_rest": 22
+      },
+      {
+        "player_name": "Jalen Smith",
+        "pts_predicted": 13.0,
+        "pts_roll_5": 12.8,
+        "pts_season_avg": 9.4,
+        "days_rest": 3
+      },
+      {
+        "player_name": "Jaden Ivey",
+        "pts_predicted": 12.8,
+        "pts_roll_5": 10.6,
+        "pts_season_avg": 14.9,
+        "days_rest": 14
+      },
+      {
+        "player_name": "Tre Jones",
+        "pts_predicted": 12.8,
+        "pts_roll_5": 10.8,
+        "pts_season_avg": 10.7,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Collin Sexton",
+        "pts_predicted": 12.7,
+        "pts_roll_5": 11.4,
+        "pts_season_avg": 16.8,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Isaac Okoro",
+        "pts_predicted": 11.9,
+        "pts_roll_5": 13.2,
+        "pts_season_avg": 7.7,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Guerschon Yabusele",
+        "pts_predicted": 11.0,
+        "pts_roll_5": 9.4,
+        "pts_season_avg": 8.2,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Patrick Williams",
+        "pts_predicted": 10.8,
+        "pts_roll_5": 8.2,
+        "pts_season_avg": 9.1,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Kevin Huerter",
+        "pts_predicted": 9.3,
+        "pts_roll_5": 6.8,
+        "pts_season_avg": 11.7,
+        "days_rest": 25
+      },
+      {
+        "player_name": "Nick Richards",
+        "pts_predicted": 8.3,
+        "pts_roll_5": 7.4,
+        "pts_season_avg": 8.4,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Rob Dillingham",
+        "pts_predicted": 6.5,
+        "pts_roll_5": 7.6,
+        "pts_season_avg": 4.3,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Dalen Terry",
+        "pts_predicted": 6.0,
+        "pts_roll_5": 5.0,
+        "pts_season_avg": 3.4,
+        "days_rest": 22
+      },
+      {
+        "player_name": "Jevon Carter",
+        "pts_predicted": 4.9,
+        "pts_roll_5": 1.6,
+        "pts_season_avg": 6.0,
+        "days_rest": 25
+      },
+      {
+        "player_name": "Mac McClung",
+        "pts_predicted": 4.6,
+        "pts_roll_5": 3.8,
+        "pts_season_avg": 6.3,
+        "days_rest": 20
+      },
+      {
+        "player_name": "Yuki Kawamura",
+        "pts_predicted": 4.4,
+        "pts_roll_5": 5.8,
+        "pts_season_avg": 2.1,
+        "days_rest": 20
+      },
+      {
+        "player_name": "Lachlan Olbrich",
+        "pts_predicted": 3.6,
+        "pts_roll_5": 3.6,
+        "pts_season_avg": 1.4,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Leonard Miller",
+        "pts_predicted": 3.5,
+        "pts_roll_5": 1.0,
+        "pts_season_avg": 1.9,
+        "days_rest": 1
+      },
+      {
+        "player_name": "Julian Phillips",
+        "pts_predicted": 2.4,
+        "pts_roll_5": 1.2,
+        "pts_season_avg": 3.6,
+        "days_rest": 25
+      }
+    ]
+  }
 }

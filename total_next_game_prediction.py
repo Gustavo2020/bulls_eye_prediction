@@ -298,9 +298,12 @@ else:
     opponent  = next_game["opponent"]
     is_home   = next_game["is_home"]
 
-    # Projected CHI team score from player model (informational only — not a training feature)
+    # Projected CHI team score: sum of top-6 scorers (informational only — not a training feature)
+    predictions_sorted = sorted(
+        next_game.get("predictions", []), key=lambda p: p["pts_predicted"], reverse=True
+    )
     chi_projected_pts = round(
-        sum(p["pts_predicted"] for p in next_game.get("predictions", [])), 1
+        sum(p["pts_predicted"] for p in predictions_sorted[:6]), 1
     )
 
     # CHI current form — use actual last N games (no shift, we want stats thru the last game)

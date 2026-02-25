@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulls Eye — Win Probability Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bulls-red:    #CE1141;
+    --bulls-black:  #000000;
+    --bulls-white:  #FFFFFF;
+    --bulls-gray:   #1a1a1a;
+    --bulls-dimred: #7a0a27;
+    --bulls-silver: #9a9a9a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bulls-black);
+    color: var(--bulls-white);
+    font-family: 'Barlow', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: .35;
+  }
+
+  /* ── RED SPOTLIGHT ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -30vh; left: 50%;
+    transform: translateX(-50%);
+    width: 80vw; height: 60vh;
+    background: radial-gradient(ellipse, rgba(206,17,65,.18) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page-wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 5rem 0 3rem;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .25em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .1s;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    line-height: .95;
+    letter-spacing: .02em;
+    color: var(--bulls-white);
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .25s;
+  }
+  .hero-title span { color: var(--bulls-red); }
+  .hero-subtitle {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    letter-spacing: .08em;
+    color: var(--bulls-silver);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .4s;
+  }
+
+  /* divider */
+  .rule {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--bulls-red), transparent);
+    margin: 2.5rem 0;
+    opacity: 0;
+    animation: fadeIn .8s ease forwards .55s;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: flex; gap: 0;
+    border: 1px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .65s;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 1.1rem 1.5rem;
+    border-right: 1px solid #222;
+    background: #0d0d0d;
+    transition: background .25s;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: #161616; }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem; letter-spacing: .15em;
+    color: var(--bulls-silver);
+    text-transform: uppercase; margin-bottom: .3rem;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem; color: var(--bulls-red);
+    line-height: 1;
+  }
+  .stat-unit { font-size: 1rem; color: var(--bulls-silver); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem; letter-spacing: .2em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, #333, transparent);
+  }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0 1.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .phase.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .phase-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .phase-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--bulls-red);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--bulls-red);
+    background: #0d0d0d;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: background .3s, color .3s;
+  }
+  .phase:hover .phase-num {
+    background: var(--bulls-red);
+    color: var(--bulls-white);
+  }
+  .phase-connector {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(180deg, var(--bulls-red) 0%, #333 100%);
+    margin: 4px 0;
+    min-height: 24px;
+  }
+  .phase:last-child .phase-connector { display: none; }
+
+  .phase-card {
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 6px;
+    padding: 1.5rem 1.8rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, box-shadow .3s;
+  }
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--bulls-red);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform .35s ease;
+  }
+  .phase:hover .phase-card {
+    border-color: #444;
+    box-shadow: 0 8px 40px rgba(206,17,65,.12);
+  }
+  .phase:hover .phase-card::before {
+    transform: scaleY(1);
+  }
+
+  .phase-header {
+    display: flex; align-items: baseline; gap: 1rem;
+    margin-bottom: .9rem;
+  }
+  .phase-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; letter-spacing: .18em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    background: rgba(206,17,65,.1);
+    border: 1px solid rgba(206,17,65,.25);
+    padding: .2rem .5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 1.25rem;
+    letter-spacing: .04em;
+    color: var(--bulls-white);
+  }
+
+  .phase-desc {
+    font-size: .9rem; line-height: 1.65;
+    color: #bbb;
+    margin-bottom: 1.1rem;
+  }
+
+  .detail-grid {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+  }
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    padding: .28rem .7rem;
+    border-radius: 3px;
+    border: 1px solid #303030;
+    background: #111;
+    color: #aaa;
+    letter-spacing: .04em;
+    transition: border-color .2s, color .2s;
+  }
+  .chip.red   { border-color: rgba(206,17,65,.4);   color: #e88; background: rgba(206,17,65,.06); }
+  .chip.green { border-color: rgba(100,200,100,.3); color: #8c8; background: rgba(100,200,100,.05); }
+  .chip.blue  { border-color: rgba(80,150,255,.3);  color: #8af; background: rgba(80,150,255,.05); }
+  .chip.amber { border-color: rgba(255,180,40,.3);  color: #fb8; background: rgba(255,180,40,.05); }
+  .phase:hover .chip { border-color: #444; color: #ccc; }
+  .phase:hover .chip.red   { border-color: rgba(206,17,65,.6);  color: #f99; }
+  .phase:hover .chip.amber { border-color: rgba(255,180,40,.5); color: #fca; }
+
+  .phase-note {
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+    background: rgba(206,17,65,.05);
+    border-left: 2px solid var(--bulls-dimred);
+    border-radius: 0 4px 4px 0;
+    font-size: .82rem;
+    color: #999;
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  /* ── TWO-COLUMN SUB-SECTION ── */
+  .sub-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .sub-box {
+    background: #111;
+    border: 1px solid #252525;
+    border-radius: 4px;
+    padding: .85rem 1rem;
+  }
+  .sub-box-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; letter-spacing: .14em;
+    color: var(--bulls-red); text-transform: uppercase;
+    margin-bottom: .45rem;
+  }
+  .sub-box-items {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem; line-height: 1.85; color: #bbb;
+  }
+
+  /* ── PROBABILITY GAUGE (decorative) ── */
+  .prob-gauge-wrap {
+    margin-top: 1.2rem;
+    display: flex; align-items: center; gap: 1.2rem;
+  }
+  .prob-bar-bg {
+    flex: 1; height: 8px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+  }
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--bulls-red), #ff4060);
+    transition: width .8s ease;
+  }
+  .prob-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem; color: var(--bulls-red);
+    flex-shrink: 0; min-width: 60px; text-align: right;
+  }
+  .prob-desc {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; color: var(--bulls-silver);
+    flex-shrink: 0; min-width: 90px;
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.2s;
+  }
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr;
+    align-items: center;
+    gap: 0;
+    margin-top: 1.5rem;
+  }
+  .arch-box {
+    background: #0d0d0d;
+    border: 1px solid #252525;
+    border-radius: 6px;
+    padding: 1.1rem .9rem;
+    text-align: center;
+    transition: border-color .25s;
+  }
+  .arch-box:hover { border-color: #555; }
+  .arch-box-icon { font-size: 1.5rem; margin-bottom: .35rem; }
+  .arch-box-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: .88rem;
+    letter-spacing: .06em; color: var(--bulls-white);
+    margin-bottom: .2rem;
+  }
+  .arch-box-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: .58rem; color: var(--bulls-silver);
+    letter-spacing: .04em;
+  }
+  .arch-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bulls-red); font-size: 1.3rem;
+  }
+
+  /* ── FEATURE TABLE ── */
+  .feat-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.4s;
+  }
+  .feat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+  .feat-cell {
+    background: #0d0d0d;
+    padding: 1.1rem 1.3rem;
+    transition: background .2s;
+  }
+  .feat-cell:hover { background: #141414; }
+  .feat-cell.span-all { grid-column: 1 / -1; }
+  .feat-cell-group {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; letter-spacing: .15em;
+    color: var(--bulls-red); text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  .feat-cell-items {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem; line-height: 1.9;
+    color: #bbb;
+  }
+  .feat-cell.span-all .feat-cell-items {
+    display: flex; gap: 2rem; flex-wrap: wrap;
+  }
+
+  /* ── MODEL METRICS ── */
+  .metrics-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.6s;
+  }
+  .metrics-row {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem; margin-top: 1.5rem;
+  }
+  .metric-card {
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 6px;
+    padding: 1.4rem 1.2rem;
+    transition: border-color .25s;
+    text-align: center;
+  }
+  .metric-card:hover { border-color: var(--bulls-red); }
+  .metric-icon { font-size: 1.6rem; margin-bottom: .5rem; }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem; letter-spacing: .15em;
+    color: var(--bulls-silver); text-transform: uppercase;
+    margin-bottom: .35rem;
+  }
+  .metric-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem; color: var(--bulls-red); line-height: 1;
+  }
+  .metric-desc {
+    font-size: .76rem; color: #666; margin-top: .35rem; line-height: 1.4;
+  }
+
+  /* ── OUTPUT FILES ── */
+  .output-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.8s;
+  }
+  .output-list {
+    display: flex; flex-direction: column; gap: .6rem;
+    margin-top: 1.5rem;
+  }
+  .output-file {
+    display: flex; align-items: center; gap: 1rem;
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: .85rem 1.2rem;
+    transition: border-color .25s;
+  }
+  .output-file:hover { border-color: #444; }
+  .output-ext {
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: .08em;
+    padding: .25rem .5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    width: 60px; text-align: center;
+  }
+  .ext-parquet { background: rgba(206,17,65,.15); color: #f88; border: 1px solid rgba(206,17,65,.3); }
+  .ext-json    { background: rgba(80,180,255,.12); color: #8cf; border: 1px solid rgba(80,180,255,.25); }
+  .ext-csv     { background: rgba(100,220,130,.1);  color: #8d8; border: 1px solid rgba(100,220,130,.25); }
+  .output-name { font-family: 'DM Mono', monospace; font-size: .78rem; color: #ccc; flex: 1; }
+  .output-desc { font-size: .8rem; color: #666; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #1a1a1a;
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: .12em;
+    color: #444;
+    text-transform: uppercase;
+  }
+  .footer span { color: var(--bulls-red); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: var(--bulls-red); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-eyebrow">MSADS · Time Series 31006 · Final Project · Module II</div>
+    <h1 class="hero-title">Win<br><span>Probability</span><br>Pipeline</h1>
+    <p class="hero-subtitle">Chicago Bulls · Next Game Prediction · XGBoost Binary Classifier · GPU</p>
+    <div class="rule"></div>
+  </header>
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-item">
+      <div class="stat-label">Training scope</div>
+      <div class="stat-value">30 <span class="stat-unit">teams</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Win features</div>
+      <div class="stat-value">22 <span class="stat-unit">cols</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Classifier</div>
+      <div class="stat-value">XGB<span class="stat-unit"> binary</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Target</div>
+      <div class="stat-value">P<span class="stat-unit">(win)</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Val Accuracy</div>
+      <div class="stat-value">~63<span class="stat-unit">%</span></div>
+    </div>
+  </div>
+
+  <!-- PIPELINE PHASES -->
+  <div class="section-label">Pipeline Phases</div>
+
+  <div class="pipeline" id="pipeline">
+
+    <!-- PHASE 1 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">1</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Data Load</span>
+          <span class="phase-title">Read Player-Game Feature Store</span>
+        </div>
+        <p class="phase-desc">
+          The pipeline begins by reading <strong style="color:#fff">df_model.parquet</strong> — the full feature-engineered
+          player-level dataset produced by the points prediction script.
+          It also reads <strong style="color:#fff">bulls_dashboard.json</strong> to retrieve the next scheduled game's
+          opponent and home/away context. No external API calls are made at this stage — everything
+          comes from local files under <code style="color:#f88;font-family:'DM Mono',monospace;font-size:.82em">model/</code>.
+        </p>
+        <div class="detail-grid">
+          <span class="chip blue">df_model.parquet → ~50 columns</span>
+          <span class="chip">bulls_dashboard.json → next_game</span>
+          <span class="chip green">no API calls at inference time</span>
+          <span class="chip">GAME_DATE parsed to datetime</span>
+        </div>
+        <div class="phase-note">
+          Keeping inference read-only from local files means the win model can run offline
+          — even if the NBA CDN is temporarily unavailable — as long as the feature store is up to date.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">2</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Aggregation</span>
+          <span class="phase-title">Player-Game → Team-Game Level</span>
+        </div>
+        <p class="phase-desc">
+          Individual player rows are collapsed into one row per team per game by summing total points scored
+          and pulling game-level context fields. A <strong style="color:#fff">self-join on GAME_ID</strong> attaches
+          the opponent's total score to each row, enabling the computation of
+          <strong style="color:#fff">MARGIN</strong> (team pts − opp pts) and a binary
+          <strong style="color:#fff">WIN</strong> label (1 if pts &gt; opp_pts, else 0).
+          This produces one row per team per game across all 30 NBA franchises.
+        </p>
+        <div class="detail-grid">
+          <span class="chip red">groupby [GAME_ID, TEAM_ABBREVIATION]</span>
+          <span class="chip">TEAM_PTS = sum(PTS)</span>
+          <span class="chip blue">self-join → OPP_PTS</span>
+          <span class="chip amber">WIN = (TEAM_PTS > OPP_PTS)</span>
+          <span class="chip">MARGIN = TEAM_PTS − OPP_PTS</span>
+          <span class="chip green">30 teams · all seasons</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">3</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Feature Engineering</span>
+          <span class="phase-title">Team Rolling Form + Opponent Context</span>
+        </div>
+        <p class="phase-desc">
+          Three feature families are built from the sorted team timeline. All rolling aggregations apply
+          <strong style="color:#fff">shift(1)</strong> before the window, ensuring the current game's
+          outcome is never visible during training. Opponent features are joined via a second copy of the same
+          table, and opponent defensive quality is pulled from the player-level
+          <strong style="color:#fff">OPP_DEF_*</strong> metrics already computed upstream.
+          Missing opponent stats fall back to the <strong style="color:#fff">league mean</strong>.
+        </p>
+        <div class="sub-cols">
+          <div class="sub-box">
+            <div class="sub-box-label">CHI Team Features (14)</div>
+            <div class="sub-box-items">
+              PTS_SCORED_ROLL_3 / 5 / 10<br>
+              PTS_ALLOWED_ROLL_3 / 5 / 10<br>
+              WIN_ROLL_3 / 5 / 10<br>
+              MARGIN_ROLL_3 / 5<br>
+              WIN_STREAK (last 3 games)<br>
+              IS_HOME · TEAM_DAYS_REST
+            </div>
+          </div>
+          <div class="sub-box">
+            <div class="sub-box-label">Opponent Features (8)</div>
+            <div class="sub-box-items">
+              OPP_WIN_ROLL_5 / 10<br>
+              OPP_PTS_SCORED_ROLL_5 / 10<br>
+              OPP_PTS_ALLOWED_ROLL_5<br>
+              OPP_MARGIN_ROLL_5<br>
+              OPP_DEF_AVG<br>
+              OPP_DEF_REG (Bayesian)
+            </div>
+          </div>
+        </div>
+        <div class="phase-note" style="margin-top:1rem">
+          Training uses all 30 teams so the model learns win/loss relationships across the entire league.
+          CHI data is reserved for Phase 5 inference only — never used as a special training subset.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">4</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Model Training</span>
+          <span class="phase-title">XGBoost Binary Classifier · GPU · Chronological Split</span>
+        </div>
+        <p class="phase-desc">
+          The 22-feature matrix is split <strong style="color:#fff">chronologically</strong> by calendar date
+          rather than by row index, ensuring that every game in the validation set is strictly
+          <em>later</em> than every training game — across all 30 teams simultaneously.
+          XGBoost trains with <strong style="color:#fff">binary:logistic</strong> objective (log-loss evaluation),
+          early stopping after 30 rounds, and GPU acceleration via CUDA.
+          The final model is serialized as <strong style="color:#fff">nba_win_model.json</strong>.
+        </p>
+        <div class="detail-grid">
+          <span class="chip red">device=cuda · tree_method=hist</span>
+          <span class="chip">n_estimators=300</span>
+          <span class="chip">lr=0.05 · max_depth=4</span>
+          <span class="chip blue">early_stopping=30 rounds</span>
+          <span class="chip green">chronological 80/20 by date</span>
+          <span class="chip">eval_metric=logloss</span>
+          <span class="chip amber">objective=binary:logistic</span>
+        </div>
+        <div class="phase-note">
+          A shallower tree depth (4 vs 6 in the points model) reduces overfitting on the binary target,
+          which has far less signal variance than raw point totals. The date-based split
+          prevents cross-season leakage that a naive row index split would allow.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">5</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Inference</span>
+          <span class="phase-title">Build Next-Game Feature Row for CHI</span>
+        </div>
+        <p class="phase-desc">
+          The most recent CHI games are pulled from the team-game table and their <strong style="color:#fff">tail
+          averages</strong> directly (no shift — we want stats through the last completed game).
+          Game context is overridden: <strong style="color:#fff">IS_HOME</strong> and
+          <strong style="color:#fff">TEAM_DAYS_REST</strong> are set to the upcoming matchup.
+          Opponent form is built from the opponent team's recent records. If fewer than 5 opponent
+          games exist, league-mean fallbacks are applied.
+          The projected CHI team score is computed from the <strong style="color:#fff">top-6 scorer predictions</strong>
+          from the points model — used as a context signal, not a training feature.
+        </p>
+        <div class="detail-grid">
+          <span class="chip blue">tail(3 / 5 / 10) → CHI form</span>
+          <span class="chip red">override IS_HOME · DAYS_REST</span>
+          <span class="chip">opponent tail(5 / 10) form</span>
+          <span class="chip green">OPP_DEF from CHI vs opp history</span>
+          <span class="chip amber">projected score = top-6 Σ pts_predicted</span>
+          <span class="chip">league mean fallback if &lt;5 opp games</span>
+        </div>
+        <div class="prob-gauge-wrap">
+          <div class="prob-desc">Sample output</div>
+          <div class="prob-bar-bg">
+            <div class="prob-bar-fill" id="gauge-fill" style="width:0%"></div>
+          </div>
+          <div class="prob-label" id="gauge-label">—</div>
+          <div class="prob-desc" style="text-align:right">P(CHI win)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">6</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Output</span>
+          <span class="phase-title">Confidence Classification &amp; JSON Export</span>
+        </div>
+        <p class="phase-desc">
+          The raw win probability from the sigmoid output is thresholded at 0.50 to produce a
+          <strong style="color:#fff">predicted result</strong> (W / L). A
+          <strong style="color:#fff">confidence band</strong> is applied: probabilities above 0.65
+          or below 0.35 are marked <em>high</em>; everything in the 0.35–0.65 corridor is
+          <em>medium</em>. The output JSON includes recent form summaries for both teams,
+          the projected team score from the player model, and all validation metrics —
+          ready to be consumed by the front-end dashboard.
+        </p>
+        <div class="detail-grid">
+          <span class="chip amber">threshold 0.50 → W / L</span>
+          <span class="chip red">confidence: high (&gt;0.65 / &lt;0.35)</span>
+          <span class="chip">medium: 0.35–0.65</span>
+          <span class="chip blue">chi_recent_form · opp_recent_form</span>
+          <span class="chip green">chi_projected_pts (from points model)</span>
+          <span class="chip">model_metrics block embedded</span>
+        </div>
+        <div class="phase-note">
+          The confidence band is intentionally wide. Win probability in the NBA rarely exceeds
+          75–80% for any matchup — flagging the 0.35–0.65 corridor as medium prevents
+          over-confident labels on inherently uncertain outcomes.
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline -->
+
+  <!-- DATA FLOW DIAGRAM -->
+  <div class="arch-section">
+    <div class="section-label">Data Flow</div>
+    <div class="arch-grid">
+      <div class="arch-box">
+        <div class="arch-box-icon">📦</div>
+        <div class="arch-box-label">Feature Store</div>
+        <div class="arch-box-sub">df_model.parquet<br>bulls_dashboard.json</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-box-icon">🏀</div>
+        <div class="arch-box-label">Team Aggregation</div>
+        <div class="arch-box-sub">player → team rows<br>30 teams · all seasons</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-box-icon">⚙️</div>
+        <div class="arch-box-label">Feature Build</div>
+        <div class="arch-box-sub">rolling form + opp<br>22 features · shift(1)</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-box-icon">🎯</div>
+        <div class="arch-box-label">XGBoost GPU</div>
+        <div class="arch-box-sub">nba_win_model.json<br>binary:logistic</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE TABLE -->
+  <div class="feat-section">
+    <div class="section-label">Feature Groups (22 total)</div>
+    <div class="feat-grid">
+      <div class="feat-cell">
+        <div class="feat-cell-group">CHI Offense</div>
+        <div class="feat-cell-items">
+          PTS_SCORED_ROLL_3<br>
+          PTS_SCORED_ROLL_5<br>
+          PTS_SCORED_ROLL_10
+        </div>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-cell-group">CHI Defense</div>
+        <div class="feat-cell-items">
+          PTS_ALLOWED_ROLL_3<br>
+          PTS_ALLOWED_ROLL_5<br>
+          PTS_ALLOWED_ROLL_10
+        </div>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-cell-group">CHI Form</div>
+        <div class="feat-cell-items">
+          WIN_ROLL_3 / 5 / 10<br>
+          MARGIN_ROLL_3 / 5<br>
+          WIN_STREAK<br>
+          IS_HOME<br>
+          TEAM_DAYS_REST
+        </div>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-cell-group">Opponent</div>
+        <div class="feat-cell-items">
+          OPP_WIN_ROLL_5 / 10<br>
+          OPP_PTS_SCORED_ROLL_5 / 10<br>
+          OPP_PTS_ALLOWED_ROLL_5<br>
+          OPP_MARGIN_ROLL_5
+        </div>
+      </div>
+      <div class="feat-cell span-all">
+        <div class="feat-cell-group">Opponent Defensive Quality (Bayesian-regularized — from points model)</div>
+        <div class="feat-cell-items">
+          <span>OPP_DEF_AVG</span>
+          <span>OPP_DEF_REG  (prior weight = 5 · shrinks to league mean for new teams)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODEL METRICS -->
+  <div class="metrics-section">
+    <div class="section-label">Validation Metrics (chronological 20% holdout)</div>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">🎯</div>
+        <div class="metric-label">Accuracy</div>
+        <div class="metric-val">~63<span style="font-size:1.1rem;color:#888">%</span></div>
+        <div class="metric-desc">Share of games where predicted W/L matches actual outcome.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📈</div>
+        <div class="metric-label">AUC-ROC</div>
+        <div class="metric-val">~0.67<span style="font-size:1rem;color:#888"></span></div>
+        <div class="metric-desc">Ability to rank wins above losses across all probability thresholds.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">🔢</div>
+        <div class="metric-label">Log-Loss</div>
+        <div class="metric-val">~0.63<span style="font-size:1rem;color:#888"></span></div>
+        <div class="metric-desc">Calibration quality of the raw probability output — lower is better.</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📏</div>
+        <div class="metric-label">MAE (prob)</div>
+        <div class="metric-val">~0.24<span style="font-size:1rem;color:#888"></span></div>
+        <div class="metric-desc">Average absolute error between predicted probability and binary outcome.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT FILES -->
+  <div class="output-section">
+    <div class="section-label">Output Artifacts</div>
+    <div class="output-list">
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/nba_win_model.json</span>
+        <span class="output-desc">Serialized XGBoost binary classifier — reloadable for reproducible inference</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/win_probability.json</span>
+        <span class="output-desc">Next-game prediction: P(win), predicted result, confidence, recent form summary, model metrics</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-parquet">parquet</span>
+        <span class="output-name">model/df_model.parquet</span>
+        <span class="output-desc">Read-only input — full player-level feature store produced by the points pipeline</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/bulls_dashboard.json</span>
+        <span class="output-desc">Read-only input — next game schedule, opponent tricode, home/away flag</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>Chicago Bulls</span> · Win Probability Pipeline · MSADS Time Series 31006 · UChicago
+  </footer>
+
+</div><!-- /page-wrap -->
+
+<script>
+  // ── Staggered entrance for pipeline phases ────────────────────────────
+  const phases = document.querySelectorAll('.phase');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(phases).indexOf(entry.target);
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, idx * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  phases.forEach(p => observer.observe(p));
+
+  // ── Animate probability gauge once Phase 5 card is in view ───────────
+  const gaugePhase = phases[4]; // Phase 5 (0-indexed)
+  const gaugeObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          const fill  = document.getElementById('gauge-fill');
+          const label = document.getElementById('gauge-label');
+          const target = 63; // sample display value
+          let current = 0;
+          const step = () => {
+            current = Math.min(current + 1.2, target);
+            fill.style.width = current + '%';
+            label.textContent = Math.round(current) + '%';
+            if (current < target) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        }, 400);
+        gaugeObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  gaugeObserver.observe(gaugePhase);
+</script>
+</body>
+</html>

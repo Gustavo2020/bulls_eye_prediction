@@ -434,18 +434,52 @@ tomorrow_str   = tomorrow.strftime("%Y-%m-%d")
 tomorrow_date  = tomorrow.date()
 chi_next_game  = None
 
+# ESPN abbreviation → NBA tricode (only entries that differ)
+ESPN_TO_NBA = {
+    "SA": "SAS", "NO": "NOP", "NY": "NYK",
+    "GS": "GSW", "PHO": "PHX", "UTAH": "UTA", "WSH": "WAS",
+}
+
+def _find_chi_game_espn(date_str: str) -> tuple[int, str] | None:
+    """Query ESPN public API for CHI game on date_str (YYYY-MM-DD).
+    Returns (is_home, opponent_tricode) or None if no game found."""
+    date_key = date_str.replace("-", "")
+    url = (
+        "https://site.api.espn.com/apis/site/v2/sports/basketball/nba"
+        f"/scoreboard?dates={date_key}"
+    )
+    r = requests.get(url, timeout=15)
+    r.raise_for_status()
+    for event in r.json().get("events", []):
+        comp = event["competitions"][0]
+        home_raw = next(
+            t for t in comp["competitors"] if t["homeAway"] == "home"
+        )["team"]["abbreviation"]
+        away_raw = next(
+            t for t in comp["competitors"] if t["homeAway"] == "away"
+        )["team"]["abbreviation"]
+        home = ESPN_TO_NBA.get(home_raw, home_raw)
+        away = ESPN_TO_NBA.get(away_raw, away_raw)
+        if home == BULLS_ABBR:
+            return 1, away
+        if away == BULLS_ABBR:
+            return 0, home
+    return None
+
+chi_is_home  = None
+chi_opponent = None
+
+# ── 1. Primary: CDN schedule ──────────────────────────────────────────────────
 try:
-    print(f"Fetching season schedule from cdn.nba.com...")
+    print("Fetching season schedule from cdn.nba.com...")
     sched_r = requests.get(CDN_SCHEDULE, timeout=30)
     sched_r.raise_for_status()
     all_games_sched = [
         g
         for day in sched_r.json()["leagueSchedule"]["gameDates"]
         for g in day["games"]
-        if g["gameId"].startswith("002")   # regular season only
+        if g["gameId"].startswith("002")
     ]
-
-    # Find CHI game on tomorrow's date
     chi_games = [
         g for g in all_games_sched
         if g.get("gameDateEst", "")[:10] == tomorrow_str
@@ -454,86 +488,96 @@ try:
             or g["awayTeam"]["teamTricode"] == BULLS_ABBR
         )
     ]
-
-    if not chi_games:
-        print(f"  → CHI has no game on {tomorrow_str}")
-    else:
+    if chi_games:
         g = chi_games[0]
-        chi_is_home = int(g["homeTeam"]["teamTricode"] == BULLS_ABBR)
+        chi_is_home  = int(g["homeTeam"]["teamTricode"] == BULLS_ABBR)
         chi_opponent = (
-            g["awayTeam"]["teamTricode"]
-            if chi_is_home
+            g["awayTeam"]["teamTricode"] if chi_is_home
             else g["homeTeam"]["teamTricode"]
         )
-        print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent}")
-
-        # Get most recent features for each CHI player (at least 5 games this season)
-        chi_players = df_clean[df_clean["TEAM_ABBREVIATION"] == BULLS_ABBR].copy()
-        latest_chi  = (
-            chi_players
-            .sort_values("GAME_DATE")
-            .groupby("PLAYER_ID")
-            .last()
-            .reset_index()
-        )
-        # Keep only players with recent activity (last 30 days)
-        cutoff = df_model["GAME_DATE"].max() - pd.Timedelta(days=30)
-        latest_chi = latest_chi[latest_chi["GAME_DATE"] >= cutoff].copy()
-
-        # Override context features for tomorrow's game
-        latest_chi["IS_HOME"]  = chi_is_home
-        latest_chi["OPPONENT"] = chi_opponent
-        latest_chi["DAYS_REST"] = (
-            pd.Timestamp(tomorrow_date) - pd.to_datetime(latest_chi["GAME_DATE"])
-        ).dt.days
-
-        # Get opponent defensive features (most recent row for that team)
-        opp_def_latest = (
-            team_def[team_def["TEAM_ABBREVIATION"] == chi_opponent]
-            .sort_values("GAME_DATE")
-            .iloc[-1]
-        )
-        latest_chi["OPP_DEF_AVG"]      = opp_def_latest.get("DEF_PTS_ALLOWED_AVG", league_avg_pts)
-        latest_chi["OPP_DEF_ROLL_5"]   = opp_def_latest.get("DEF_PTS_ALLOWED_ROLL_5", league_avg_pts)
-        latest_chi["OPP_DEF_ROLL_10"]  = opp_def_latest.get("DEF_PTS_ALLOWED_ROLL_10", league_avg_pts)
-        latest_chi["OPP_DEF_REG"]      = opp_def_latest.get("DEF_PTS_ALLOWED_REGULARIZED", league_avg_pts)
-        latest_chi["OPP_GAMES_PLAYED"] = opp_def_latest.get("TEAM_GAME_NUM", 0)
-
-        # Fill any remaining NaNs with column means from training data
-        for col in FEATURE_COLS:
-            latest_chi[col] = latest_chi[col].fillna(df_clean[col].mean())
-
-        X_tomorrow = latest_chi[FEATURE_COLS]
-        latest_chi["PTS_PREDICTED"] = model.get_booster().inplace_predict(X_tomorrow.to_numpy()).clip(0).round(1)
-
-        chi_next_game = {
-            "game_date": tomorrow_str,
-            "opponent":  chi_opponent,
-            "is_home":   chi_is_home,
-            "predictions": (
-                latest_chi[["PLAYER_NAME", "PTS_PREDICTED", "PTS_ROLL_5", "PTS_SEASON_AVG", "DAYS_REST"]]
-                .rename(columns={
-                    "PTS_PREDICTED":  "pts_predicted",
-                    "PTS_ROLL_5":     "pts_roll_5",
-                    "PTS_SEASON_AVG": "pts_season_avg",
-                    "DAYS_REST":      "days_rest",
-                })
-                .assign(
-                    pts_predicted  = lambda x: x["pts_predicted"].apply(lambda v: round(float(v), 1)),
-                    pts_roll_5     = lambda x: x["pts_roll_5"].apply(lambda v: round(float(v), 1)),
-                    pts_season_avg = lambda x: x["pts_season_avg"].apply(lambda v: round(float(v), 1)),
-                    days_rest      = lambda x: x["days_rest"].astype(int),
-                )
-                .rename(columns={"PLAYER_NAME": "player_name"})
-                .sort_values("pts_predicted", ascending=False)
-                .to_dict(orient="records")
-            ),
-        }
-        print(f"  → {len(chi_next_game['predictions'])} CHI players to predict")
-
+        print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent}  [CDN]")
+    else:
+        print(f"  → CHI has no game on {tomorrow_str} [CDN]")
 except Exception as exc:
-    print(f"  → Could not fetch tomorrow's schedule: {exc}")
-    chi_next_game = None
+    print(f"  → CDN schedule failed: {exc}")
+
+# ── 2. Fallback: ESPN public API ──────────────────────────────────────────────
+if chi_is_home is None:
+    try:
+        print("  → Trying ESPN API fallback...")
+        espn_result = _find_chi_game_espn(tomorrow_str)
+        if espn_result:
+            chi_is_home, chi_opponent = espn_result
+            print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent}  [ESPN]")
+        else:
+            print(f"  → CHI has no game on {tomorrow_str} [ESPN]")
+    except Exception as exc2:
+        print(f"  → ESPN fallback also failed: {exc2}")
+
+if chi_is_home is not None and chi_opponent is not None:
+    # Get most recent features for each CHI player (at least 5 games this season)
+    chi_players = df_clean[df_clean["TEAM_ABBREVIATION"] == BULLS_ABBR].copy()
+    latest_chi  = (
+        chi_players
+        .sort_values("GAME_DATE")
+        .groupby("PLAYER_ID")
+        .last()
+        .reset_index()
+    )
+    # Keep only players with recent activity (last 30 days)
+    cutoff = df_model["GAME_DATE"].max() - pd.Timedelta(days=30)
+    latest_chi = latest_chi[latest_chi["GAME_DATE"] >= cutoff].copy()
+
+    # Override context features for tomorrow's game
+    latest_chi["IS_HOME"]  = chi_is_home
+    latest_chi["OPPONENT"] = chi_opponent
+    latest_chi["DAYS_REST"] = (
+        pd.Timestamp(tomorrow_date) - pd.to_datetime(latest_chi["GAME_DATE"])
+    ).dt.days
+
+    # Get opponent defensive features (most recent row for that team)
+    opp_def_latest = (
+        team_def[team_def["TEAM_ABBREVIATION"] == chi_opponent]
+        .sort_values("GAME_DATE")
+        .iloc[-1]
+    )
+    latest_chi["OPP_DEF_AVG"]      = opp_def_latest.get("DEF_PTS_ALLOWED_AVG", league_avg_pts)
+    latest_chi["OPP_DEF_ROLL_5"]   = opp_def_latest.get("DEF_PTS_ALLOWED_ROLL_5", league_avg_pts)
+    latest_chi["OPP_DEF_ROLL_10"]  = opp_def_latest.get("DEF_PTS_ALLOWED_ROLL_10", league_avg_pts)
+    latest_chi["OPP_DEF_REG"]      = opp_def_latest.get("DEF_PTS_ALLOWED_REGULARIZED", league_avg_pts)
+    latest_chi["OPP_GAMES_PLAYED"] = opp_def_latest.get("TEAM_GAME_NUM", 0)
+
+    # Fill any remaining NaNs with column means from training data
+    for col in FEATURE_COLS:
+        latest_chi[col] = latest_chi[col].fillna(df_clean[col].mean())
+
+    X_tomorrow = latest_chi[FEATURE_COLS]
+    latest_chi["PTS_PREDICTED"] = model.get_booster().inplace_predict(X_tomorrow.to_numpy()).clip(0).round(1)
+
+    chi_next_game = {
+        "game_date": tomorrow_str,
+        "opponent":  chi_opponent,
+        "is_home":   chi_is_home,
+        "predictions": (
+            latest_chi[["PLAYER_NAME", "PTS_PREDICTED", "PTS_ROLL_5", "PTS_SEASON_AVG", "DAYS_REST"]]
+            .rename(columns={
+                "PTS_PREDICTED":  "pts_predicted",
+                "PTS_ROLL_5":     "pts_roll_5",
+                "PTS_SEASON_AVG": "pts_season_avg",
+                "DAYS_REST":      "days_rest",
+            })
+            .assign(
+                pts_predicted  = lambda x: x["pts_predicted"].apply(lambda v: round(float(v), 1)),
+                pts_roll_5     = lambda x: x["pts_roll_5"].apply(lambda v: round(float(v), 1)),
+                pts_season_avg = lambda x: x["pts_season_avg"].apply(lambda v: round(float(v), 1)),
+                days_rest      = lambda x: x["days_rest"].astype(int),
+            )
+            .rename(columns={"PLAYER_NAME": "player_name"})
+            .sort_values("pts_predicted", ascending=False)
+            .to_dict(orient="records")
+        ),
+    }
+    print(f"  → {len(chi_next_game['predictions'])} CHI players to predict")
 
 # ── 9. BULLS DASHBOARD JSON ───────────────────────────────────────────────────
 print("\n" + "=" * 55)
