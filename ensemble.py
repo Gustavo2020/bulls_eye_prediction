@@ -1,0 +1,505 @@
+#!/usr/bin/env python3
+"""
+Win-Probability Model — Chicago Bulls Next Game
+Ensemble: XGBoost + LightGBM (weighted average)
+
+Reads from model/ (output of download_nba_model_data.py).
+Trains an XGBoost + LightGBM ensemble binary classifier.
+Predicts P(CHI wins) for the next scheduled game.
+
+No external API calls — reads only from model/.
+
+Inputs:
+  model/df_model.parquet      — full player-level feature dataset
+  model/bulls_dashboard.json  — next_game player predictions
+
+Outputs:
+  model/win_probability_ensemble.json  — win/loss probability for next CHI game
+  model/nba_win_model_xgb_ensemble.json — saved XGBoost classifier
+  model/nba_win_model_lgbm_ensemble.txt — saved LightGBM classifier
+
+Run:
+  python total_next_game_prediction_ensemble.py
+"""
+
+import json
+import numpy as np
+import pandas as pd
+import torch
+import xgboost as xgb
+import lightgbm as lgb
+from pathlib import Path
+from sklearn.metrics import accuracy_score, roc_auc_score, log_loss, mean_absolute_error
+
+# ── SETUP ─────────────────────────────────────────────────────────────────────
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(f"PyTorch device : {device}")
+if device.type == "cuda":
+    print(f"  GPU : {torch.cuda.get_device_name(0)}")
+
+USE_GPU = device.type == "cuda"
+
+XGB_GPU_PARAMS = (
+    {"device": "cuda", "tree_method": "hist"} if USE_GPU else {}
+)
+LGBM_GPU_PARAMS = (
+    {"device": "gpu"} if USE_GPU else {}
+)
+
+PROJECT_DIR    = Path(__file__).parent
+MODEL_DIR      = PROJECT_DIR / "model"
+DATA_PATH      = MODEL_DIR / "df_model.parquet"
+DASHBOARD_PATH = MODEL_DIR / "bulls_dashboard.json"
+
+# ── OUTPUT PATHS (ensemble suffix) ────────────────────────────────────────────
+WIN_PROB_PATH   = MODEL_DIR / "win_probability_ensemble.json"
+XGB_MODEL_PATH  = MODEL_DIR / "nba_win_model_xgb_ensemble.json"
+LGBM_MODEL_PATH = MODEL_DIR / "nba_win_model_lgbm_ensemble.txt"
+
+# Ensemble weights — XGBoost and LightGBM equal weight
+XGB_WEIGHT  = 0.5
+LGBM_WEIGHT = 0.5
+
+BULLS_ABBR = "CHI"
+
+print(f"\nModel dir : {MODEL_DIR}\n")
+
+# ── PHASE 1: LOAD DATA ────────────────────────────────────────────────────────
+print("=" * 55)
+print("PHASE 1 — LOAD PLAYER-GAME DATA")
+print("=" * 55)
+
+if not DATA_PATH.exists():
+    raise FileNotFoundError(
+        f"{DATA_PATH} not found.\nRun download_nba_model_data.py first."
+    )
+
+df = pd.read_parquet(DATA_PATH)
+df["GAME_DATE"] = pd.to_datetime(df["GAME_DATE"])
+print(f"  {len(df):,} player-game rows | last game: {df['GAME_DATE'].max().date()}")
+
+# ── PHASE 2: AGGREGATE TO TEAM-GAME LEVEL ────────────────────────────────────
+print("\n" + "=" * 55)
+print("PHASE 2 — AGGREGATE TO TEAM-GAME LEVEL")
+print("=" * 55)
+
+team_games = (
+    df.groupby(["GAME_ID", "GAME_DATE", "TEAM_ABBREVIATION"])
+    .agg(
+        TEAM_PTS = ("PTS",      "sum"),
+        IS_HOME  = ("IS_HOME",  "first"),
+        WL       = ("WL",       "first"),
+        OPPONENT = ("OPPONENT", "first"),
+    )
+    .reset_index()
+    .sort_values(["TEAM_ABBREVIATION", "GAME_DATE"])
+    .reset_index(drop=True)
+)
+
+opp_side = (
+    team_games[["GAME_ID", "TEAM_ABBREVIATION", "TEAM_PTS"]]
+    .rename(columns={"TEAM_ABBREVIATION": "_OPP", "TEAM_PTS": "OPP_PTS"})
+)
+team_games = team_games.merge(
+    opp_side,
+    left_on=["GAME_ID", "OPPONENT"],
+    right_on=["GAME_ID", "_OPP"],
+    how="left",
+).drop(columns=["_OPP"])
+
+team_games["WIN"]    = (team_games["TEAM_PTS"] > team_games["OPP_PTS"]).astype(int)
+team_games["MARGIN"] = team_games["TEAM_PTS"] - team_games["OPP_PTS"]
+
+print(f"  {len(team_games):,} team-game rows | {team_games['TEAM_ABBREVIATION'].nunique()} teams")
+
+# ── PHASE 3: ROLLING FEATURES (shift-1, all 30 teams) ────────────────────────
+print("\n" + "=" * 55)
+print("PHASE 3 — ROLLING FEATURES (shift-1 to prevent leakage)")
+print("=" * 55)
+
+team_games = (
+    team_games
+    .sort_values(["TEAM_ABBREVIATION", "GAME_DATE"])
+    .reset_index(drop=True)
+)
+
+for stat, label in [
+    ("WIN",      "WIN"),
+    ("TEAM_PTS", "PTS_SCORED"),
+    ("OPP_PTS",  "PTS_ALLOWED"),
+    ("MARGIN",   "MARGIN"),
+]:
+    for w in [3, 5, 10]:
+        team_games[f"{label}_ROLL_{w}"] = (
+            team_games.groupby("TEAM_ABBREVIATION")[stat]
+            .transform(lambda x, w=w: x.shift(1).rolling(w, min_periods=1).mean())
+        )
+
+team_games["WIN_STREAK"] = (
+    team_games.groupby("TEAM_ABBREVIATION")["WIN"]
+    .transform(lambda x: x.shift(1).rolling(3, min_periods=1).sum())
+)
+team_games["TEAM_DAYS_REST"] = (
+    team_games.groupby("TEAM_ABBREVIATION")["GAME_DATE"]
+    .diff().dt.days.fillna(3)
+)
+
+opp_features = (
+    team_games[[
+        "GAME_DATE", "TEAM_ABBREVIATION",
+        "WIN_ROLL_5",        "WIN_ROLL_10",
+        "PTS_SCORED_ROLL_5", "PTS_SCORED_ROLL_10",
+        "PTS_ALLOWED_ROLL_5",
+        "MARGIN_ROLL_5",
+    ]]
+    .rename(columns={
+        "TEAM_ABBREVIATION":  "_OPP",
+        "WIN_ROLL_5":         "OPP_WIN_ROLL_5",
+        "WIN_ROLL_10":        "OPP_WIN_ROLL_10",
+        "PTS_SCORED_ROLL_5":  "OPP_PTS_SCORED_ROLL_5",
+        "PTS_SCORED_ROLL_10": "OPP_PTS_SCORED_ROLL_10",
+        "PTS_ALLOWED_ROLL_5": "OPP_PTS_ALLOWED_ROLL_5",
+        "MARGIN_ROLL_5":      "OPP_MARGIN_ROLL_5",
+    })
+)
+
+all_games = team_games.merge(
+    opp_features,
+    left_on=["GAME_DATE", "OPPONENT"],
+    right_on=["GAME_DATE", "_OPP"],
+    how="left",
+).drop(columns=["_OPP"])
+
+opp_def = (
+    df[["GAME_DATE", "OPPONENT", "OPP_DEF_AVG", "OPP_DEF_REG"]]
+    .drop_duplicates(subset=["GAME_DATE", "OPPONENT"])
+)
+all_games = all_games.merge(opp_def, on=["GAME_DATE", "OPPONENT"], how="left")
+
+league_means = team_games[["WIN", "TEAM_PTS", "OPP_PTS", "MARGIN"]].mean()
+nan_fills = {
+    "OPP_WIN_ROLL_5":         float(league_means["WIN"]),
+    "OPP_WIN_ROLL_10":        float(league_means["WIN"]),
+    "OPP_PTS_SCORED_ROLL_5":  float(league_means["TEAM_PTS"]),
+    "OPP_PTS_SCORED_ROLL_10": float(league_means["TEAM_PTS"]),
+    "OPP_PTS_ALLOWED_ROLL_5": float(league_means["OPP_PTS"]),
+    "OPP_MARGIN_ROLL_5":      float(league_means["MARGIN"]),
+    "OPP_DEF_AVG":            float(df["OPP_DEF_AVG"].mean()),
+    "OPP_DEF_REG":            float(df["OPP_DEF_REG"].mean()),
+}
+for col, val in nan_fills.items():
+    all_games[col] = all_games[col].fillna(val)
+
+chi_games = all_games[all_games["TEAM_ABBREVIATION"] == BULLS_ABBR].copy()
+
+print(f"  All team-game rows : {len(all_games):,}")
+print(f"  CHI games          : {len(chi_games):,} | win rate: {chi_games['WIN'].mean():.1%}")
+
+# ── PHASE 4: TRAIN ENSEMBLE ───────────────────────────────────────────────────
+print("\n" + "=" * 55)
+print("PHASE 4 — TRAIN ENSEMBLE (XGBoost + LightGBM)")
+print("=" * 55)
+
+WIN_FEATURES = [
+    # CHI offensive form
+    "PTS_SCORED_ROLL_3", "PTS_SCORED_ROLL_5", "PTS_SCORED_ROLL_10",
+    # CHI defensive form
+    "PTS_ALLOWED_ROLL_3", "PTS_ALLOWED_ROLL_5", "PTS_ALLOWED_ROLL_10",
+    # CHI recent form
+    "WIN_ROLL_3",  "WIN_ROLL_5",  "WIN_ROLL_10",
+    "MARGIN_ROLL_3", "MARGIN_ROLL_5",
+    "WIN_STREAK",
+    # Game context
+    "IS_HOME", "TEAM_DAYS_REST",
+    # Opponent form
+    "OPP_WIN_ROLL_5",         "OPP_WIN_ROLL_10",
+    "OPP_PTS_SCORED_ROLL_5",
+    "OPP_PTS_ALLOWED_ROLL_5",
+    "OPP_MARGIN_ROLL_5",
+    # Opponent defensive quality (Bayesian-regularized)
+    "OPP_DEF_AVG", "OPP_DEF_REG",
+]
+
+all_clean = (
+    all_games.dropna(subset=WIN_FEATURES + ["WIN"])
+    .sort_values("GAME_DATE")
+    .reset_index(drop=True)
+)
+chi_clean = (
+    all_clean[all_clean["TEAM_ABBREVIATION"] == BULLS_ABBR]
+    .reset_index(drop=True)
+)
+
+print(f"  Training rows (all teams) : {len(all_clean):,}  "
+      f"(dropped {len(all_games) - len(all_clean):,} NaN rows)")
+print(f"  CHI games in clean set    : {len(chi_clean):,}")
+
+# Chronological split by calendar date
+all_dates  = all_clean["GAME_DATE"].sort_values().unique()
+split_date = pd.Timestamp(all_dates[int(len(all_dates) * 0.80)])
+train_mask = all_clean["GAME_DATE"] < split_date
+
+X_train = all_clean[train_mask][WIN_FEATURES]
+y_train = all_clean[train_mask]["WIN"]
+X_val   = all_clean[~train_mask][WIN_FEATURES]
+y_val   = all_clean[~train_mask]["WIN"]
+
+print(f"  Train : {len(X_train):,} rows (before {split_date.date()})")
+print(f"  Val   : {len(X_val):,} rows  (on/after {split_date.date()})")
+
+# ── 4a. XGBoost ───────────────────────────────────────────────────────────────
+print("\n  ── Training XGBoost ──")
+xgb_model = xgb.XGBClassifier(
+    n_estimators          = 300,
+    learning_rate         = 0.05,
+    max_depth             = 4,
+    subsample             = 0.8,
+    colsample_bytree      = 0.8,
+    early_stopping_rounds = 30,
+    eval_metric           = "logloss",
+    objective             = "binary:logistic",
+    **XGB_GPU_PARAMS,
+)
+xgb_model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=50)
+xgb_prob_val = xgb_model.get_booster().inplace_predict(X_val.to_numpy())
+
+xgb_acc  = float(accuracy_score(y_val, (xgb_prob_val > 0.5).astype(int)))
+xgb_auc  = float(roc_auc_score(y_val, xgb_prob_val))
+xgb_loss = float(log_loss(y_val, xgb_prob_val))
+print(f"  XGB  → Accuracy: {xgb_acc:.1%}  AUC: {xgb_auc:.3f}  LogLoss: {xgb_loss:.3f}")
+
+xgb_model.save_model(str(XGB_MODEL_PATH))
+print(f"  → XGBoost model saved: {XGB_MODEL_PATH}")
+
+# ── 4b. LightGBM ──────────────────────────────────────────────────────────────
+print("\n  ── Training LightGBM ──")
+lgbm_model = lgb.LGBMClassifier(
+    n_estimators          = 300,
+    learning_rate         = 0.05,
+    max_depth             = 4,
+    num_leaves            = 15,       # 2^max_depth - 1: conservative to match XGB
+    subsample             = 0.8,
+    colsample_bytree      = 0.8,
+    min_child_samples     = 20,       # prevents overfitting on small node
+    reg_alpha             = 0.1,      # L1 — helps with correlated features
+    reg_lambda            = 1.0,      # L2
+    early_stopping_rounds = 30,
+    verbose               = -1,
+    **LGBM_GPU_PARAMS,
+)
+lgbm_model.fit(
+    X_train, y_train,
+    eval_set=[(X_val, y_val)],
+    eval_metric="binary_logloss",
+    callbacks=[lgb.log_evaluation(50)],
+)
+lgbm_prob_val = lgbm_model.predict_proba(X_val)[:, 1]
+
+lgbm_acc  = float(accuracy_score(y_val, (lgbm_prob_val > 0.5).astype(int)))
+lgbm_auc  = float(roc_auc_score(y_val, lgbm_prob_val))
+lgbm_loss = float(log_loss(y_val, lgbm_prob_val))
+print(f"  LGBM → Accuracy: {lgbm_acc:.1%}  AUC: {lgbm_auc:.3f}  LogLoss: {lgbm_loss:.3f}")
+
+lgbm_model.booster_.save_model(str(LGBM_MODEL_PATH))
+print(f"  → LightGBM model saved: {LGBM_MODEL_PATH}")
+
+# ── 4c. Ensemble: weighted average ────────────────────────────────────────────
+print(f"\n  ── Ensemble (XGB×{XGB_WEIGHT} + LGBM×{LGBM_WEIGHT}) ──")
+ens_prob_val = XGB_WEIGHT * xgb_prob_val + LGBM_WEIGHT * lgbm_prob_val
+ens_pred_val = (ens_prob_val > 0.5).astype(int)
+
+val_acc     = float(accuracy_score(y_val, ens_pred_val))
+val_auc     = float(roc_auc_score(y_val, ens_prob_val))
+val_logloss = float(log_loss(y_val, ens_prob_val))
+val_mae     = float(mean_absolute_error(y_val, ens_prob_val))
+
+print(f"\n  Ensemble Val Accuracy : {val_acc:.1%}  (XGB: {xgb_acc:.1%} | LGBM: {lgbm_acc:.1%})")
+print(f"  Ensemble Val AUC      : {val_auc:.3f}  (XGB: {xgb_auc:.3f} | LGBM: {lgbm_auc:.3f})")
+print(f"  Ensemble Val Log-Loss : {val_logloss:.3f}  (XGB: {xgb_loss:.3f} | LGBM: {lgbm_loss:.3f})")
+print(f"  Ensemble Val MAE      : {val_mae:.3f}")
+
+# ── 4d. Feature importance (average of both models) ───────────────────────────
+xgb_imp  = pd.Series(xgb_model.feature_importances_,  index=WIN_FEATURES)
+lgbm_imp = pd.Series(lgbm_model.feature_importances_, index=WIN_FEATURES)
+lgbm_imp = lgbm_imp / lgbm_imp.sum()   # normalize to [0,1] like XGB
+
+avg_imp = ((xgb_imp + lgbm_imp) / 2).sort_values(ascending=False)
+
+print("\n  Top 10 features (avg importance XGB + LGBM):")
+for feat, score in avg_imp.head(10).items():
+    bar = "█" * int(score * 200)
+    print(f"    {feat:<30} {score:.4f}  {bar}")
+
+# ── PHASE 5: PREDICT NEXT GAME WIN PROBABILITY ────────────────────────────────
+print("\n" + "=" * 55)
+print("PHASE 5 — PREDICT NEXT GAME WIN PROBABILITY")
+print("=" * 55)
+
+if not DASHBOARD_PATH.exists():
+    raise FileNotFoundError(
+        f"{DASHBOARD_PATH} not found.\nRun download_nba_model_data.py first."
+    )
+
+with open(DASHBOARD_PATH) as f:
+    dashboard = json.load(f)
+
+next_game = dashboard.get("next_game")
+
+model_metrics_block = {
+    "ensemble": {
+        "val_accuracy": round(val_acc,     3),
+        "val_auc":      round(val_auc,     3),
+        "val_logloss":  round(val_logloss, 3),
+        "val_mae":      round(val_mae,     3),
+        "val_games":    len(X_val),
+    },
+    "xgboost": {
+        "val_accuracy": round(xgb_acc,  3),
+        "val_auc":      round(xgb_auc,  3),
+        "val_logloss":  round(xgb_loss, 3),
+        "best_iter":    int(xgb_model.best_iteration),
+    },
+    "lightgbm": {
+        "val_accuracy": round(lgbm_acc,  3),
+        "val_auc":      round(lgbm_auc,  3),
+        "val_logloss":  round(lgbm_loss, 3),
+        "best_iter":    int(lgbm_model.best_iteration_),
+    },
+    "weights": {"xgb": XGB_WEIGHT, "lgbm": LGBM_WEIGHT},
+    "n_features": len(WIN_FEATURES),
+}
+
+if next_game is None:
+    print("  → No next game scheduled for CHI.")
+    result = {"next_game": None, "model_metrics": model_metrics_block}
+else:
+    game_date = next_game["game_date"]
+    opponent  = next_game["opponent"]
+    is_home   = next_game["is_home"]
+
+    chi_projected_pts = round(
+        sum(p["pts_predicted"] for p in next_game.get("predictions", [])), 1
+    )
+
+    chi_sorted = chi_clean.sort_values("GAME_DATE")
+
+    def tail_mean(col: str, k: int) -> float:
+        return float(chi_sorted[col].tail(k).mean())
+
+    feat_row = {
+        "PTS_SCORED_ROLL_3":   tail_mean("TEAM_PTS", 3),
+        "PTS_SCORED_ROLL_5":   tail_mean("TEAM_PTS", 5),
+        "PTS_SCORED_ROLL_10":  tail_mean("TEAM_PTS", 10),
+        "PTS_ALLOWED_ROLL_3":  tail_mean("OPP_PTS",  3),
+        "PTS_ALLOWED_ROLL_5":  tail_mean("OPP_PTS",  5),
+        "PTS_ALLOWED_ROLL_10": tail_mean("OPP_PTS",  10),
+        "WIN_ROLL_3":          tail_mean("WIN", 3),
+        "WIN_ROLL_5":          tail_mean("WIN", 5),
+        "WIN_ROLL_10":         tail_mean("WIN", 10),
+        "MARGIN_ROLL_3":       tail_mean("MARGIN", 3),
+        "MARGIN_ROLL_5":       tail_mean("MARGIN", 5),
+        "WIN_STREAK":          float(chi_sorted["WIN"].tail(3).sum()),
+        "IS_HOME":             float(is_home),
+        "TEAM_DAYS_REST":      float(
+            (pd.Timestamp(game_date) - chi_sorted["GAME_DATE"].iloc[-1]).days
+        ),
+    }
+
+    opp_data = (
+        team_games[team_games["TEAM_ABBREVIATION"] == opponent]
+        .sort_values("GAME_DATE")
+    )
+    if len(opp_data) >= 5:
+        feat_row["OPP_WIN_ROLL_5"]         = float(opp_data["WIN"].tail(5).mean())
+        feat_row["OPP_WIN_ROLL_10"]        = float(opp_data["WIN"].tail(10).mean())
+        feat_row["OPP_PTS_SCORED_ROLL_5"]  = float(opp_data["TEAM_PTS"].tail(5).mean())
+        feat_row["OPP_PTS_ALLOWED_ROLL_5"] = float(opp_data["OPP_PTS"].tail(5).mean())
+        feat_row["OPP_MARGIN_ROLL_5"]      = float(opp_data["MARGIN"].tail(5).mean())
+    else:
+        feat_row["OPP_WIN_ROLL_5"]         = float(league_means["WIN"])
+        feat_row["OPP_WIN_ROLL_10"]        = float(league_means["WIN"])
+        feat_row["OPP_PTS_SCORED_ROLL_5"]  = float(league_means["TEAM_PTS"])
+        feat_row["OPP_PTS_ALLOWED_ROLL_5"] = float(league_means["OPP_PTS"])
+        feat_row["OPP_MARGIN_ROLL_5"]      = float(league_means["MARGIN"])
+
+    chi_vs_opp = chi_clean[chi_clean["OPPONENT"] == opponent].sort_values("GAME_DATE")
+    if not chi_vs_opp.empty:
+        feat_row["OPP_DEF_AVG"] = float(chi_vs_opp["OPP_DEF_AVG"].iloc[-1])
+        feat_row["OPP_DEF_REG"] = float(chi_vs_opp["OPP_DEF_REG"].iloc[-1])
+    else:
+        feat_row["OPP_DEF_AVG"] = float(df["OPP_DEF_AVG"].mean())
+        feat_row["OPP_DEF_REG"] = float(df["OPP_DEF_REG"].mean())
+
+    X_next = pd.DataFrame([feat_row])[WIN_FEATURES]
+
+    # Individual model probabilities
+    xgb_next_prob  = float(xgb_model.get_booster().inplace_predict(X_next.to_numpy())[0])
+    lgbm_next_prob = float(lgbm_model.predict_proba(X_next)[:, 1][0])
+
+    # Ensemble probability
+    win_prob    = XGB_WEIGHT * xgb_next_prob + LGBM_WEIGHT * lgbm_next_prob
+    pred_result = "W" if win_prob >= 0.5 else "L"
+    confidence  = "high" if (win_prob > 0.65 or win_prob < 0.35) else "medium"
+
+    print(f"  CHI vs {opponent} ({'HOME' if is_home else 'AWAY'}) — {game_date}")
+    print(f"  XGBoost  probability : {xgb_next_prob:.1%}")
+    print(f"  LightGBM probability : {lgbm_next_prob:.1%}")
+    print(f"  Ensemble probability : {win_prob:.1%}  ({pred_result} — {confidence} confidence)")
+    print(f"  CHI projected score  : {chi_projected_pts} pts (sum of player model)")
+
+    chi_last5    = chi_sorted.tail(5)
+    chi_w5       = int(chi_last5["WIN"].sum())
+    chi_record_5 = f"{chi_w5}-{5 - chi_w5}"
+
+    if len(opp_data) >= 5:
+        opp_w5       = int(opp_data["WIN"].tail(5).sum())
+        opp_record_5 = f"{opp_w5}-{5 - opp_w5}"
+    else:
+        opp_record_5 = "N/A"
+
+    result = {
+        "game_date":         game_date,
+        "opponent":          opponent,
+        "is_home":           is_home,
+        "chi_projected_pts": chi_projected_pts,
+        "win_probability":   round(win_prob,         3),
+        "win_prob_xgb":      round(xgb_next_prob,    3),
+        "win_prob_lgbm":     round(lgbm_next_prob,   3),
+        "predicted_result":  pred_result,
+        "confidence":        confidence,
+        "chi_recent_form": {
+            "last_5_record":     chi_record_5,
+            "avg_pts_scored_5":  round(tail_mean("TEAM_PTS", 5), 1),
+            "avg_pts_allowed_5": round(tail_mean("OPP_PTS",  5), 1),
+            "avg_margin_5":      round(tail_mean("MARGIN",   5), 1),
+        },
+        "opponent_recent_form": {
+            "team":              opponent,
+            "last_5_record":     opp_record_5,
+            "avg_pts_scored_5":  round(feat_row["OPP_PTS_SCORED_ROLL_5"],  1),
+            "avg_pts_allowed_5": round(feat_row["OPP_PTS_ALLOWED_ROLL_5"], 1),
+            "avg_margin_5":      round(feat_row["OPP_MARGIN_ROLL_5"],      1),
+        },
+        "model_metrics": model_metrics_block,
+    }
+
+# ── PHASE 6: SAVE OUTPUT ──────────────────────────────────────────────────────
+WIN_PROB_PATH.write_text(json.dumps(result, indent=2))
+print(f"\n  → Saved: {WIN_PROB_PATH}")
+
+# ── SUMMARY ───────────────────────────────────────────────────────────────────
+print("\n" + "=" * 55)
+print("DONE")
+print("=" * 55)
+print(f"  Ensemble Accuracy : {val_acc:.1%}")
+print(f"  Ensemble AUC      : {val_auc:.3f}")
+print(f"  Ensemble Log-Loss : {val_logloss:.3f}")
+print(f"  Ensemble MAE      : {val_mae:.3f}")
+print()
+print(f"  XGBoost  Accuracy : {xgb_acc:.1%}  AUC: {xgb_auc:.3f}")
+print(f"  LightGBM Accuracy : {lgbm_acc:.1%}  AUC: {lgbm_auc:.3f}")
+print()
+print("  Output files:")
+print(f"    {XGB_MODEL_PATH}")
+print(f"    {LGBM_MODEL_PATH}")
+print(f"    {WIN_PROB_PATH}  ← web service JSON")

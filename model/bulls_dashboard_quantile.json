@@ -1,0 +1,1080 @@
+{
+  "team": "Chicago Bulls",
+  "abbreviation": "CHI",
+  "last_updated": "2026-02-24",
+  "model_metrics": {
+    "q50_mae": 3.958,
+    "q50_rmse": 5.365,
+    "q50_r2": 0.383,
+    "interval_coverage_80pct": 0.743,
+    "avg_interval_width_pts": 12.05,
+    "best_iter_q10": 157,
+    "best_iter_q50": 124,
+    "best_iter_q90": 143
+  },
+  "recent_games": [
+    {
+      "game_id": "0022500836",
+      "game_date": "2026-02-25",
+      "opponent": "CHA",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 32,
+          "pts_floor": 5.2,
+          "pts_predicted": 13.4,
+          "pts_ceiling": 21.4,
+          "pts_error": -18.6,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 11,
+          "pts_floor": 2.5,
+          "pts_predicted": 9.0,
+          "pts_ceiling": 16.5,
+          "pts_error": -2.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 11,
+          "pts_floor": 3.0,
+          "pts_predicted": 9.2,
+          "pts_ceiling": 16.6,
+          "pts_error": -1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 10,
+          "pts_floor": 3.3,
+          "pts_predicted": 9.3,
+          "pts_ceiling": 18.8,
+          "pts_error": -0.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Josh Giddey",
+          "pts_actual": 8,
+          "pts_floor": 4.6,
+          "pts_predicted": 12.7,
+          "pts_ceiling": 22.6,
+          "pts_error": 4.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 7,
+          "pts_floor": 3.9,
+          "pts_predicted": 11.0,
+          "pts_ceiling": 18.6,
+          "pts_error": 4.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 6,
+          "pts_floor": 0.5,
+          "pts_predicted": 5.4,
+          "pts_ceiling": 12.4,
+          "pts_error": -0.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 6,
+          "pts_floor": 1.2,
+          "pts_predicted": 6.4,
+          "pts_ceiling": 13.3,
+          "pts_error": 0.4,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Leonard Miller",
+          "pts_actual": 5,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.3,
+          "pts_ceiling": 6.3,
+          "pts_error": -3.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Tre Jones",
+          "pts_actual": 3,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.7,
+          "pts_ceiling": 18.5,
+          "pts_error": 7.7,
+          "in_interval": 0
+        }
+      ]
+    },
+    {
+      "game_id": "0022500825",
+      "game_date": "2026-02-23",
+      "opponent": "NYK",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 15,
+          "pts_floor": 5.3,
+          "pts_predicted": 13.3,
+          "pts_ceiling": 21.8,
+          "pts_error": -1.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 12,
+          "pts_floor": 3.9,
+          "pts_predicted": 10.8,
+          "pts_ceiling": 18.0,
+          "pts_error": -1.2,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jalen Smith",
+          "pts_actual": 12,
+          "pts_floor": 3.6,
+          "pts_predicted": 10.5,
+          "pts_ceiling": 19.5,
+          "pts_error": -1.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 11,
+          "pts_floor": 1.9,
+          "pts_predicted": 7.4,
+          "pts_ceiling": 15.4,
+          "pts_error": -3.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 10,
+          "pts_floor": 2.2,
+          "pts_predicted": 7.8,
+          "pts_ceiling": 15.4,
+          "pts_error": -2.2,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 9,
+          "pts_floor": 0.8,
+          "pts_predicted": 6.4,
+          "pts_ceiling": 13.7,
+          "pts_error": -2.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 8,
+          "pts_floor": 3.4,
+          "pts_predicted": 10.3,
+          "pts_ceiling": 20.8,
+          "pts_error": 2.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 8,
+          "pts_floor": 0.0,
+          "pts_predicted": 3.7,
+          "pts_ceiling": 12.0,
+          "pts_error": -4.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Tre Jones",
+          "pts_actual": 8,
+          "pts_floor": 3.8,
+          "pts_predicted": 10.9,
+          "pts_ceiling": 18.9,
+          "pts_error": 2.9,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Josh Giddey",
+          "pts_actual": 6,
+          "pts_floor": 5.3,
+          "pts_predicted": 12.8,
+          "pts_ceiling": 22.7,
+          "pts_error": 6.8,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500814",
+      "game_date": "2026-02-22",
+      "opponent": "DET",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Josh Giddey",
+          "pts_actual": 27,
+          "pts_floor": 4.5,
+          "pts_predicted": 12.0,
+          "pts_ceiling": 21.5,
+          "pts_error": -15.0,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 15,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.0,
+          "pts_ceiling": 18.0,
+          "pts_error": -5.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jalen Smith",
+          "pts_actual": 15,
+          "pts_floor": 3.4,
+          "pts_predicted": 10.3,
+          "pts_ceiling": 18.6,
+          "pts_error": -4.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 15,
+          "pts_floor": 5.3,
+          "pts_predicted": 13.2,
+          "pts_ceiling": 22.2,
+          "pts_error": -1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 12,
+          "pts_floor": 1.2,
+          "pts_predicted": 6.5,
+          "pts_ceiling": 14.2,
+          "pts_error": -5.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Tre Jones",
+          "pts_actual": 7,
+          "pts_floor": 4.1,
+          "pts_predicted": 11.0,
+          "pts_ceiling": 18.2,
+          "pts_error": 4.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 6,
+          "pts_floor": 2.3,
+          "pts_predicted": 9.0,
+          "pts_ceiling": 16.8,
+          "pts_error": 3.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 5,
+          "pts_floor": 0.4,
+          "pts_predicted": 5.1,
+          "pts_ceiling": 13.7,
+          "pts_error": 0.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 4,
+          "pts_floor": 7.8,
+          "pts_predicted": 16.2,
+          "pts_ceiling": 26.1,
+          "pts_error": 12.2,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 2,
+          "pts_floor": 3.9,
+          "pts_predicted": 11.1,
+          "pts_ceiling": 20.4,
+          "pts_error": 9.1,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 2,
+          "pts_floor": 0.1,
+          "pts_predicted": 5.0,
+          "pts_ceiling": 13.4,
+          "pts_error": 3.0,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500797",
+      "game_date": "2026-02-20",
+      "opponent": "TOR",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 20,
+          "pts_floor": 7.7,
+          "pts_predicted": 16.7,
+          "pts_ceiling": 26.1,
+          "pts_error": -3.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 16,
+          "pts_floor": 2.4,
+          "pts_predicted": 9.5,
+          "pts_ceiling": 16.5,
+          "pts_error": -6.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Tre Jones",
+          "pts_actual": 12,
+          "pts_floor": 3.3,
+          "pts_predicted": 10.0,
+          "pts_ceiling": 17.1,
+          "pts_error": -2.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 11,
+          "pts_floor": 5.2,
+          "pts_predicted": 13.2,
+          "pts_ceiling": 23.3,
+          "pts_error": 2.2,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jalen Smith",
+          "pts_actual": 9,
+          "pts_floor": 3.4,
+          "pts_predicted": 10.1,
+          "pts_ceiling": 17.6,
+          "pts_error": 1.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 8,
+          "pts_floor": 1.2,
+          "pts_predicted": 6.7,
+          "pts_ceiling": 14.3,
+          "pts_error": -1.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 6,
+          "pts_floor": 0.3,
+          "pts_predicted": 6.0,
+          "pts_ceiling": 13.4,
+          "pts_error": 0.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 6,
+          "pts_floor": 2.3,
+          "pts_predicted": 8.8,
+          "pts_ceiling": 16.8,
+          "pts_error": 2.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Josh Giddey",
+          "pts_actual": 5,
+          "pts_floor": 5.3,
+          "pts_predicted": 12.0,
+          "pts_ceiling": 21.5,
+          "pts_error": 7.0,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 4,
+          "pts_floor": 6.0,
+          "pts_predicted": 13.8,
+          "pts_ceiling": 22.7,
+          "pts_error": 9.8,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 4,
+          "pts_floor": 0.6,
+          "pts_predicted": 6.9,
+          "pts_ceiling": 14.3,
+          "pts_error": 2.9,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500778",
+      "game_date": "2026-02-12",
+      "opponent": "BOS",
+      "is_home": 0,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 16,
+          "pts_floor": 0.0,
+          "pts_predicted": 4.8,
+          "pts_ceiling": 11.8,
+          "pts_error": -11.2,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 15,
+          "pts_floor": 5.1,
+          "pts_predicted": 13.2,
+          "pts_ceiling": 21.4,
+          "pts_error": -1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 15,
+          "pts_floor": 5.9,
+          "pts_predicted": 13.5,
+          "pts_ceiling": 21.8,
+          "pts_error": -1.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 13,
+          "pts_floor": 0.7,
+          "pts_predicted": 5.7,
+          "pts_ceiling": 13.5,
+          "pts_error": -7.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 12,
+          "pts_floor": 1.7,
+          "pts_predicted": 7.6,
+          "pts_ceiling": 15.1,
+          "pts_error": -4.4,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jaden Ivey",
+          "pts_actual": 10,
+          "pts_floor": 3.2,
+          "pts_predicted": 10.1,
+          "pts_ceiling": 17.8,
+          "pts_error": 0.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 7,
+          "pts_floor": 8.1,
+          "pts_predicted": 16.7,
+          "pts_ceiling": 24.2,
+          "pts_error": 9.7,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Lachlan Olbrich",
+          "pts_actual": 7,
+          "pts_floor": 0.3,
+          "pts_predicted": 1.5,
+          "pts_ceiling": 7.6,
+          "pts_error": -5.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Leonard Miller",
+          "pts_actual": 5,
+          "pts_floor": 0.1,
+          "pts_predicted": 1.0,
+          "pts_ceiling": 7.3,
+          "pts_error": -4.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 5,
+          "pts_floor": 0.3,
+          "pts_predicted": 5.4,
+          "pts_ceiling": 16.5,
+          "pts_error": 0.4,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500762",
+      "game_date": "2026-02-10",
+      "opponent": "BKN",
+      "is_home": 0,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 23,
+          "pts_floor": 8.1,
+          "pts_predicted": 16.6,
+          "pts_ceiling": 25.8,
+          "pts_error": -6.4,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 21,
+          "pts_floor": 4.8,
+          "pts_predicted": 12.1,
+          "pts_ceiling": 21.1,
+          "pts_error": -8.9,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 18,
+          "pts_floor": 6.7,
+          "pts_predicted": 14.6,
+          "pts_ceiling": 23.8,
+          "pts_error": -3.4,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jaden Ivey",
+          "pts_actual": 13,
+          "pts_floor": 3.2,
+          "pts_predicted": 10.4,
+          "pts_ceiling": 20.4,
+          "pts_error": -2.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 12,
+          "pts_floor": 0.2,
+          "pts_predicted": 5.2,
+          "pts_ceiling": 14.7,
+          "pts_error": -6.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 10,
+          "pts_floor": 3.0,
+          "pts_predicted": 9.9,
+          "pts_ceiling": 17.6,
+          "pts_error": -0.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 8,
+          "pts_floor": 0.0,
+          "pts_predicted": 4.1,
+          "pts_ceiling": 12.7,
+          "pts_error": -3.9,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 7,
+          "pts_floor": 2.6,
+          "pts_predicted": 8.8,
+          "pts_ceiling": 17.1,
+          "pts_error": 1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 3,
+          "pts_floor": 0.5,
+          "pts_predicted": 6.2,
+          "pts_ceiling": 16.8,
+          "pts_error": 3.2,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500752",
+      "game_date": "2026-02-08",
+      "opponent": "DEN",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 21,
+          "pts_floor": 6.5,
+          "pts_predicted": 14.4,
+          "pts_ceiling": 23.6,
+          "pts_error": -6.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 17,
+          "pts_floor": 3.3,
+          "pts_predicted": 10.2,
+          "pts_ceiling": 19.4,
+          "pts_error": -6.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 15,
+          "pts_floor": 8.3,
+          "pts_predicted": 16.1,
+          "pts_ceiling": 25.4,
+          "pts_error": 1.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 15,
+          "pts_floor": 0.3,
+          "pts_predicted": 2.6,
+          "pts_ceiling": 11.5,
+          "pts_error": -12.4,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 13,
+          "pts_floor": 3.0,
+          "pts_predicted": 9.7,
+          "pts_ceiling": 17.5,
+          "pts_error": -3.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 12,
+          "pts_floor": 0.2,
+          "pts_predicted": 6.3,
+          "pts_ceiling": 14.3,
+          "pts_error": -5.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jaden Ivey",
+          "pts_actual": 10,
+          "pts_floor": 3.0,
+          "pts_predicted": 9.9,
+          "pts_ceiling": 19.3,
+          "pts_error": -0.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 9,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.6,
+          "pts_ceiling": 8.5,
+          "pts_error": -7.4,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 8,
+          "pts_floor": 2.5,
+          "pts_predicted": 9.1,
+          "pts_ceiling": 17.0,
+          "pts_error": 1.1,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500736",
+      "game_date": "2026-02-06",
+      "opponent": "TOR",
+      "is_home": 0,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Anfernee Simons",
+          "pts_actual": 22,
+          "pts_floor": 8.1,
+          "pts_predicted": 16.5,
+          "pts_ceiling": 25.4,
+          "pts_error": -5.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 18,
+          "pts_floor": 6.2,
+          "pts_predicted": 14.3,
+          "pts_ceiling": 23.0,
+          "pts_error": -3.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 15,
+          "pts_floor": 0.1,
+          "pts_predicted": 2.3,
+          "pts_ceiling": 10.1,
+          "pts_error": -12.7,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Jalen Smith",
+          "pts_actual": 13,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.5,
+          "pts_ceiling": 19.3,
+          "pts_error": -2.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jaden Ivey",
+          "pts_actual": 13,
+          "pts_floor": 1.9,
+          "pts_predicted": 9.4,
+          "pts_ceiling": 17.0,
+          "pts_error": -3.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 10,
+          "pts_floor": 3.0,
+          "pts_predicted": 9.3,
+          "pts_ceiling": 17.6,
+          "pts_error": -0.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 9,
+          "pts_floor": 2.5,
+          "pts_predicted": 9.9,
+          "pts_ceiling": 18.1,
+          "pts_error": 0.9,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Mac McClung",
+          "pts_actual": 4,
+          "pts_floor": 0.3,
+          "pts_predicted": 3.8,
+          "pts_ceiling": 9.8,
+          "pts_error": -0.2,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Yuki Kawamura",
+          "pts_actual": 3,
+          "pts_floor": 0.2,
+          "pts_predicted": 5.7,
+          "pts_ceiling": 12.7,
+          "pts_error": 2.7,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500722",
+      "game_date": "2026-02-04",
+      "opponent": "MIL",
+      "is_home": 0,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 22,
+          "pts_floor": 5.1,
+          "pts_predicted": 13.0,
+          "pts_ceiling": 21.5,
+          "pts_error": -9.0,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Coby White",
+          "pts_actual": 21,
+          "pts_floor": 8.4,
+          "pts_predicted": 17.1,
+          "pts_ceiling": 26.0,
+          "pts_error": -3.9,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Ayo Dosunmu",
+          "pts_actual": 17,
+          "pts_floor": 7.2,
+          "pts_predicted": 15.7,
+          "pts_ceiling": 24.9,
+          "pts_error": -1.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 17,
+          "pts_floor": 1.9,
+          "pts_predicted": 8.3,
+          "pts_ceiling": 17.1,
+          "pts_error": -8.7,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jalen Smith",
+          "pts_actual": 16,
+          "pts_floor": 2.9,
+          "pts_predicted": 11.4,
+          "pts_ceiling": 17.9,
+          "pts_error": -4.6,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 9,
+          "pts_floor": 2.5,
+          "pts_predicted": 9.1,
+          "pts_ceiling": 16.6,
+          "pts_error": 0.1,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Dalen Terry",
+          "pts_actual": 6,
+          "pts_floor": 0.2,
+          "pts_predicted": 5.7,
+          "pts_ceiling": 13.6,
+          "pts_error": -0.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Yuki Kawamura",
+          "pts_actual": 5,
+          "pts_floor": 0.1,
+          "pts_predicted": 5.3,
+          "pts_ceiling": 12.5,
+          "pts_error": 0.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Lachlan Olbrich",
+          "pts_actual": 2,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.9,
+          "pts_ceiling": 9.4,
+          "pts_error": -0.1,
+          "in_interval": 1
+        }
+      ]
+    },
+    {
+      "game_id": "0022500692",
+      "game_date": "2026-02-01",
+      "opponent": "MIA",
+      "is_home": 0,
+      "result": "W",
+      "players": [
+        {
+          "player_name": "Ayo Dosunmu",
+          "pts_actual": 29,
+          "pts_floor": 6.3,
+          "pts_predicted": 14.7,
+          "pts_ceiling": 24.3,
+          "pts_error": -14.3,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Ayo Dosunmu",
+          "pts_actual": 29,
+          "pts_floor": 6.3,
+          "pts_predicted": 14.7,
+          "pts_ceiling": 24.3,
+          "pts_error": -14.3,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 21,
+          "pts_floor": 6.1,
+          "pts_predicted": 13.2,
+          "pts_ceiling": 22.6,
+          "pts_error": -7.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 21,
+          "pts_floor": 6.1,
+          "pts_predicted": 13.2,
+          "pts_ceiling": 22.6,
+          "pts_error": -7.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 20,
+          "pts_floor": 2.2,
+          "pts_predicted": 8.2,
+          "pts_ceiling": 16.6,
+          "pts_error": -11.8,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 20,
+          "pts_floor": 2.2,
+          "pts_predicted": 8.2,
+          "pts_ceiling": 16.5,
+          "pts_error": -11.8,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 15,
+          "pts_floor": 0.1,
+          "pts_predicted": 5.0,
+          "pts_ceiling": 13.0,
+          "pts_error": -10.0,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Patrick Williams",
+          "pts_actual": 15,
+          "pts_floor": 0.1,
+          "pts_predicted": 5.0,
+          "pts_ceiling": 13.0,
+          "pts_error": -10.0,
+          "in_interval": 0
+        },
+        {
+          "player_name": "Jevon Carter",
+          "pts_actual": 11,
+          "pts_floor": 1.1,
+          "pts_predicted": 4.0,
+          "pts_ceiling": 11.6,
+          "pts_error": -7.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Jevon Carter",
+          "pts_actual": 11,
+          "pts_floor": 1.1,
+          "pts_predicted": 4.0,
+          "pts_ceiling": 11.6,
+          "pts_error": -7.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Dalen Terry",
+          "pts_actual": 9,
+          "pts_floor": 0.1,
+          "pts_predicted": 3.5,
+          "pts_ceiling": 11.6,
+          "pts_error": -5.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Dalen Terry",
+          "pts_actual": 9,
+          "pts_floor": 0.1,
+          "pts_predicted": 3.5,
+          "pts_ceiling": 11.6,
+          "pts_error": -5.5,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Kevin Huerter",
+          "pts_actual": 9,
+          "pts_floor": 2.9,
+          "pts_predicted": 9.8,
+          "pts_ceiling": 17.6,
+          "pts_error": 0.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Kevin Huerter",
+          "pts_actual": 9,
+          "pts_floor": 2.9,
+          "pts_predicted": 9.8,
+          "pts_ceiling": 17.6,
+          "pts_error": 0.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Yuki Kawamura",
+          "pts_actual": 6,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.8,
+          "pts_ceiling": 10.8,
+          "pts_error": -4.2,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Yuki Kawamura",
+          "pts_actual": 6,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.7,
+          "pts_ceiling": 10.8,
+          "pts_error": -4.3,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Julian Phillips",
+          "pts_actual": 3,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.2,
+          "pts_ceiling": 6.8,
+          "pts_error": -1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Julian Phillips",
+          "pts_actual": 3,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.2,
+          "pts_ceiling": 6.8,
+          "pts_error": -1.8,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Lachlan Olbrich",
+          "pts_actual": 2,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.0,
+          "pts_ceiling": 6.2,
+          "pts_error": -1.0,
+          "in_interval": 1
+        },
+        {
+          "player_name": "Lachlan Olbrich",
+          "pts_actual": 2,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.0,
+          "pts_ceiling": 6.2,
+          "pts_error": -1.0,
+          "in_interval": 1
+        }
+      ]
+    }
+  ],
+  "next_game": null
+}

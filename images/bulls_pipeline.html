@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NBA Points Prediction — Pipeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bulls-red:    #CE1141;
+    --bulls-black:  #000000;
+    --bulls-white:  #FFFFFF;
+    --bulls-gray:   #1a1a1a;
+    --bulls-dimred: #7a0a27;
+    --bulls-silver: #9a9a9a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bulls-black);
+    color: var(--bulls-white);
+    font-family: 'Barlow', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: .35;
+  }
+
+  /* ── RED SPOTLIGHT ── */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -30vh; left: 50%;
+    transform: translateX(-50%);
+    width: 80vw; height: 60vh;
+    background: radial-gradient(ellipse, rgba(206,17,65,.18) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .page-wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 2rem 6rem; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 5rem 0 3rem;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    letter-spacing: .25em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .1s;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    line-height: .95;
+    letter-spacing: .02em;
+    color: var(--bulls-white);
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .25s;
+  }
+  .hero-title span { color: var(--bulls-red); }
+  .hero-subtitle {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 300;
+    font-size: 1.1rem;
+    letter-spacing: .08em;
+    color: var(--bulls-silver);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .4s;
+  }
+
+  /* divider */
+  .rule {
+    width: 100%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--bulls-red), transparent);
+    margin: 2.5rem 0;
+    opacity: 0;
+    animation: fadeIn .8s ease forwards .55s;
+  }
+
+  /* ── STAT STRIP ── */
+  .stat-strip {
+    display: flex; gap: 0;
+    border: 1px solid #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 3.5rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards .65s;
+  }
+  .stat-item {
+    flex: 1;
+    padding: 1.1rem 1.5rem;
+    border-right: 1px solid #222;
+    background: #0d0d0d;
+    transition: background .25s;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item:hover { background: #161616; }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .62rem; letter-spacing: .15em;
+    color: var(--bulls-silver);
+    text-transform: uppercase; margin-bottom: .3rem;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem; color: var(--bulls-red);
+    line-height: 1;
+  }
+  .stat-unit { font-size: 1rem; color: var(--bulls-silver); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem; letter-spacing: .2em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: .8rem;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, #333, transparent);
+  }
+
+  /* ── PIPELINE ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 0 1.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity .5s ease, transform .5s ease;
+  }
+  .phase.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* left column: number + connector */
+  .phase-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .phase-num {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    border: 2px solid var(--bulls-red);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--bulls-red);
+    background: #0d0d0d;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    transition: background .3s, color .3s;
+  }
+  .phase:hover .phase-num {
+    background: var(--bulls-red);
+    color: var(--bulls-white);
+  }
+  .phase-connector {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(180deg, var(--bulls-red) 0%, #333 100%);
+    margin: 4px 0;
+    min-height: 24px;
+  }
+  .phase:last-child .phase-connector { display: none; }
+
+  /* right column: card */
+  .phase-card {
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 6px;
+    padding: 1.5rem 1.8rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .3s, box-shadow .3s;
+  }
+  .phase-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: var(--bulls-red);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform .35s ease;
+  }
+  .phase:hover .phase-card {
+    border-color: #444;
+    box-shadow: 0 8px 40px rgba(206,17,65,.12);
+  }
+  .phase:hover .phase-card::before {
+    transform: scaleY(1);
+  }
+
+  .phase-header {
+    display: flex; align-items: baseline; gap: 1rem;
+    margin-bottom: .9rem;
+  }
+  .phase-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; letter-spacing: .18em;
+    color: var(--bulls-red);
+    text-transform: uppercase;
+    background: rgba(206,17,65,.1);
+    border: 1px solid rgba(206,17,65,.25);
+    padding: .2rem .5rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 1.25rem;
+    letter-spacing: .04em;
+    color: var(--bulls-white);
+  }
+
+  .phase-desc {
+    font-size: .9rem; line-height: 1.65;
+    color: #bbb;
+    margin-bottom: 1.1rem;
+  }
+
+  /* detail chips */
+  .detail-grid {
+    display: flex; flex-wrap: wrap; gap: .5rem;
+  }
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: .68rem;
+    padding: .28rem .7rem;
+    border-radius: 3px;
+    border: 1px solid #303030;
+    background: #111;
+    color: #aaa;
+    letter-spacing: .04em;
+    transition: border-color .2s, color .2s;
+  }
+  .chip.red { border-color: rgba(206,17,65,.4); color: #e88; background: rgba(206,17,65,.06); }
+  .chip.green { border-color: rgba(100,200,100,.3); color: #8c8; background: rgba(100,200,100,.05); }
+  .chip.blue { border-color: rgba(80,150,255,.3); color: #8af; background: rgba(80,150,255,.05); }
+  .phase:hover .chip { border-color: #444; color: #ccc; }
+  .phase:hover .chip.red { border-color: rgba(206,17,65,.6); color: #f99; }
+
+  /* sub-note inside card */
+  .phase-note {
+    margin-top: 1rem;
+    padding: .75rem 1rem;
+    background: rgba(206,17,65,.05);
+    border-left: 2px solid var(--bulls-dimred);
+    border-radius: 0 4px 4px 0;
+    font-size: .82rem;
+    color: #999;
+    font-style: italic;
+    line-height: 1.55;
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.2s;
+  }
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr 48px 1fr;
+    align-items: center;
+    gap: 0;
+    margin-top: 1.5rem;
+  }
+  .arch-box {
+    background: #0d0d0d;
+    border: 1px solid #252525;
+    border-radius: 6px;
+    padding: 1.2rem 1rem;
+    text-align: center;
+    transition: border-color .25s;
+  }
+  .arch-box:hover { border-color: #555; }
+  .arch-box-icon {
+    font-size: 1.6rem; margin-bottom: .4rem;
+  }
+  .arch-box-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: .9rem;
+    letter-spacing: .06em; color: var(--bulls-white);
+    margin-bottom: .25rem;
+  }
+  .arch-box-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; color: var(--bulls-silver);
+    letter-spacing: .05em;
+  }
+  .arch-arrow {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bulls-red); font-size: 1.4rem;
+  }
+
+  /* ── FEATURES TABLE ── */
+  .feat-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.4s;
+  }
+  .feat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 1.5rem;
+  }
+  .feat-cell {
+    background: #0d0d0d;
+    padding: 1.1rem 1.3rem;
+    transition: background .2s;
+  }
+  .feat-cell:hover { background: #141414; }
+  .feat-cell-group {
+    font-family: 'DM Mono', monospace;
+    font-size: .6rem; letter-spacing: .15em;
+    color: var(--bulls-red); text-transform: uppercase;
+    margin-bottom: .5rem;
+  }
+  .feat-cell-items {
+    font-family: 'DM Mono', monospace;
+    font-size: .72rem; line-height: 1.9;
+    color: #bbb;
+  }
+
+  /* ── MODEL METRICS ── */
+  .metrics-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.6s;
+  }
+  .metrics-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-top: 1.5rem;
+  }
+  .metric-card {
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 6px;
+    padding: 1.5rem;
+    display: flex; align-items: center; gap: 1.2rem;
+    transition: border-color .25s;
+  }
+  .metric-card:hover { border-color: var(--bulls-red); }
+  .metric-icon {
+    font-size: 2rem; flex-shrink: 0;
+  }
+  .metric-label {
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: .15em;
+    color: var(--bulls-silver); text-transform: uppercase;
+    margin-bottom: .3rem;
+  }
+  .metric-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem; color: var(--bulls-red); line-height: 1;
+  }
+  .metric-desc {
+    font-size: .78rem; color: #888; margin-top: .2rem; line-height: 1.4;
+  }
+
+  /* ── OUTPUT FILES ── */
+  .output-section {
+    margin-top: 4rem;
+    opacity: 0;
+    animation: fadeUp .6s ease forwards 1.8s;
+  }
+  .output-list {
+    display: flex; flex-direction: column; gap: .6rem;
+    margin-top: 1.5rem;
+  }
+  .output-file {
+    display: flex; align-items: center; gap: 1rem;
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: .85rem 1.2rem;
+    transition: border-color .25s;
+  }
+  .output-file:hover { border-color: #444; }
+  .output-ext {
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: .08em;
+    padding: .25rem .5rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    width: 60px; text-align: center;
+  }
+  .ext-parquet { background: rgba(206,17,65,.15); color: #f88; border: 1px solid rgba(206,17,65,.3); }
+  .ext-json    { background: rgba(80,180,255,.12); color: #8cf; border: 1px solid rgba(80,180,255,.25); }
+  .ext-csv     { background: rgba(100,220,130,.1); color: #8d8; border: 1px solid rgba(100,220,130,.25); }
+  .output-name {
+    font-family: 'DM Mono', monospace;
+    font-size: .78rem; color: #ccc;
+    flex: 1;
+  }
+  .output-desc { font-size: .8rem; color: #666; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid #1a1a1a;
+    font-family: 'DM Mono', monospace;
+    font-size: .65rem; letter-spacing: .12em;
+    color: #444;
+    text-transform: uppercase;
+  }
+  .footer span { color: var(--bulls-red); }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: #000; }
+  ::-webkit-scrollbar-thumb { background: var(--bulls-red); border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-eyebrow">MSADS · Time Series 31006 · Final Project</div>
+    <h1 class="hero-title">NBA Points<br><span>Prediction</span><br>Pipeline</h1>
+    <p class="hero-subtitle">Chicago Bulls · Daily Update System · XGBoost GPU + RAPIDS</p>
+    <div class="rule"></div>
+  </header>
+
+  <!-- STAT STRIP -->
+  <div class="stat-strip">
+    <div class="stat-item">
+      <div class="stat-label">Seasons</div>
+      <div class="stat-value">4 <span class="stat-unit">seasons</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Game IDs probed</div>
+      <div class="stat-value">5K<span class="stat-unit">+</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Features</div>
+      <div class="stat-value">22 <span class="stat-unit">cols</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Model</div>
+      <div class="stat-value">XGB<span class="stat-unit"> GPU</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Target</div>
+      <div class="stat-value">PTS<span class="stat-unit">/game</span></div>
+    </div>
+  </div>
+
+  <!-- PIPELINE PHASES -->
+  <div class="section-label">Pipeline Phases</div>
+
+  <div class="pipeline" id="pipeline">
+
+    <!-- PHASE 1 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">1</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Data Ingestion</span>
+          <span class="phase-title">Incremental Fetch from cdn.nba.com</span>
+        </div>
+        <p class="phase-desc">
+          Hits <code style="color:#f88;font-family:'DM Mono',monospace;font-size:.82em">cdn.nba.com/static/json/liveData/boxscore/boxscore_{ID}.json</code> for each candidate game ID.
+          Game IDs follow the pattern <strong style="color:#fff">002{YY}{num:05d}</strong> — up to 1,250 per season.
+          A <strong style="color:#fff">ThreadPoolExecutor</strong> with 8 workers fetches them in parallel (~2 min for a full season).
+          On incremental runs, already-known IDs are skipped to avoid redundant requests.
+        </p>
+        <div class="detail-grid">
+          <span class="chip red">cdn.nba.com</span>
+          <span class="chip">4 seasons: 2022–26</span>
+          <span class="chip">ThreadPoolExecutor × 8</span>
+          <span class="chip green">gameStatus == 3 (finished)</span>
+          <span class="chip">retry ×3 on timeout</span>
+          <span class="chip blue">incremental — skips known IDs</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">2</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Parsing</span>
+          <span class="phase-title">Boxscore → Player-Game Rows</span>
+        </div>
+        <p class="phase-desc">
+          Each boxscore JSON is parsed into one row per player who actually played (minutes &gt; 0).
+          Stats extracted include points, shooting splits, rebounds, assists, plus/minus, and game context
+          (home/away, opponent tricode, date).
+          The raw dataset is cached as <strong style="color:#fff">df_raw.parquet</strong> for fast re-reads.
+        </p>
+        <div class="detail-grid">
+          <span class="chip">PTS · FGM/A · FG3M/A · FTM/A</span>
+          <span class="chip">REB · AST · STL · BLK · TOV</span>
+          <span class="chip red">MIN &gt; 0 filter</span>
+          <span class="chip blue">saved to parquet</span>
+          <span class="chip">dedup on [PLAYER_ID, GAME_ID]</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">3</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Feature Engineering</span>
+          <span class="phase-title">Rolling · Lag · Contextual Features</span>
+        </div>
+        <p class="phase-desc">
+          Three classes of features are built on top of the sorted player timeline.
+          All rolling and expanding computations use <strong style="color:#fff">shift(1)</strong> before aggregating
+          to guarantee <strong style="color:#fff">zero data leakage</strong> — the model never sees the current game's own stats.
+        </p>
+        <div class="detail-grid">
+          <span class="chip red">Rolling avg: 3, 5, 10 games</span>
+          <span class="chip red">Lag: t-1, t-2, t-3</span>
+          <span class="chip">Season-to-date avg (expanding)</span>
+          <span class="chip">Volatility: std 5g</span>
+          <span class="chip blue">IS_HOME · DAYS_REST · GAME_NUM</span>
+          <span class="chip green">shift(1) → no leakage</span>
+        </div>
+        <div class="phase-note">
+          Key design decision: shift(1) ensures every feature is computed from past games only.
+          Forgetting this single line would cause the model to train on the target itself — inflating metrics artificially.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">4</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Defense Metrics</span>
+          <span class="phase-title">Opponent Team Defensive Rating</span>
+        </div>
+        <p class="phase-desc">
+          For each game the points allowed by a team are computed by cross-joining both sides of the matchup.
+          Rolling 5g and 10g defensive averages are built, plus a <strong style="color:#fff">Bayesian-shrinkage regularized</strong> metric
+          that blends the team's historical average with the league average using a prior weight of 5.
+          This prevents extreme estimates for teams with very few games.
+        </p>
+        <div class="detail-grid">
+          <span class="chip">PTS_ALLOWED per game</span>
+          <span class="chip red">OPP_DEF_ROLL_5 · ROLL_10</span>
+          <span class="chip blue">Bayesian shrinkage (prior=5)</span>
+          <span class="chip">OPP_DEF_REG · OPP_DEF_AVG</span>
+          <span class="chip green">merged on [OPPONENT, GAME_DATE]</span>
+        </div>
+        <div class="phase-note">
+          Regularized defensive rating: (cum_pts_allowed + 5 × league_avg) / (n_games + 5).
+          Shrinks towards league average for new teams or early in the season.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">5</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Model Training</span>
+          <span class="phase-title">XGBoost Regressor · GPU · Chronological Split</span>
+        </div>
+        <p class="phase-desc">
+          The feature matrix (22 columns) is split <strong style="color:#fff">chronologically 80/20</strong> — never shuffled —
+          to simulate real deployment. XGBoost trains on GPU with early stopping after 30 rounds of no improvement,
+          evaluated on MAE. The full model is serialized to <strong style="color:#fff">.json</strong> for reproducibility.
+        </p>
+        <div class="detail-grid">
+          <span class="chip red">device=cuda · tree_method=hist</span>
+          <span class="chip">n_estimators=500</span>
+          <span class="chip">lr=0.05 · max_depth=6</span>
+          <span class="chip blue">early_stopping=30 rounds</span>
+          <span class="chip green">chronological 80/20</span>
+          <span class="chip">eval_metric=MAE</span>
+        </div>
+        <div class="phase-note">
+          Chronological split is essential for time series. A random split would allow the model to "see the future"
+          during training, making validation metrics meaningless.
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">6</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Inference</span>
+          <span class="phase-title">Tomorrow's CHI Game Predictions</span>
+        </div>
+        <p class="phase-desc">
+          The season schedule is fetched from <code style="color:#f88;font-family:'DM Mono',monospace;font-size:.82em">cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json</code>.
+          For each active Bulls player (last 30 days), the most recent feature row is extracted and context is overridden:
+          <strong style="color:#fff">IS_HOME</strong>, <strong style="color:#fff">DAYS_REST</strong>, and <strong style="color:#fff">opponent defensive metrics</strong> are set to tomorrow's game.
+          Predictions are clipped to ≥ 0 and rounded to 1 decimal.
+        </p>
+        <div class="detail-grid">
+          <span class="chip">scheduleLeagueV2_1.json</span>
+          <span class="chip blue">active = last 30 days</span>
+          <span class="chip red">override IS_HOME, DAYS_REST</span>
+          <span class="chip">opponent DEF metrics (latest)</span>
+          <span class="chip green">clip(0).round(1)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 7 -->
+    <div class="phase">
+      <div class="phase-left">
+        <div class="phase-num">7</div>
+        <div class="phase-connector"></div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-tag">Output</span>
+          <span class="phase-title">Dashboard JSON + Predictions History</span>
+        </div>
+        <p class="phase-desc">
+          A <strong style="color:#fff">bulls_dashboard.json</strong> is written with the last 10 CHI games (actual vs. predicted per player),
+          tomorrow's predictions, and model metrics — ready to be consumed by a web front-end or API.
+          A full <strong style="color:#fff">predictions_history.csv</strong> logs every prediction ever made, flagging validation rows.
+        </p>
+        <div class="detail-grid">
+          <span class="chip blue">bulls_dashboard.json</span>
+          <span class="chip green">predictions_history.csv</span>
+          <span class="chip">last 10 games · actual vs pred</span>
+          <span class="chip red">IS_VALIDATION flag</span>
+          <span class="chip">meta.json · model metrics</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pipeline -->
+
+  <!-- ARCHITECTURE DIAGRAM -->
+  <div class="arch-section">
+    <div class="section-label">Data Flow</div>
+    <div class="arch-grid">
+      <div class="arch-box">
+        <div class="arch-box-icon">🌐</div>
+        <div class="arch-box-label">cdn.nba.com</div>
+        <div class="arch-box-sub">Boxscore JSON<br>Schedule JSON</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-box-icon">⚙️</div>
+        <div class="arch-box-label">Feature Store</div>
+        <div class="arch-box-sub">df_raw.parquet<br>df_model.parquet</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box">
+        <div class="arch-box-icon">🎯</div>
+        <div class="arch-box-label">XGBoost GPU</div>
+        <div class="arch-box-sub">nba_xgb_model.json<br>RTX 5080 · CUDA 12.8</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE TABLE -->
+  <div class="feat-section">
+    <div class="section-label">Feature Groups (22 total)</div>
+    <div class="feat-grid">
+      <div class="feat-cell">
+        <div class="feat-cell-group">Player Rolling</div>
+        <div class="feat-cell-items">
+          PTS_ROLL_3<br>
+          PTS_ROLL_5<br>
+          PTS_ROLL_10<br>
+          MIN_ROLL_3<br>
+          MIN_ROLL_5<br>
+          MIN_ROLL_10
+        </div>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-cell-group">Player Lag</div>
+        <div class="feat-cell-items">
+          PTS_LAG_1<br>
+          PTS_LAG_2<br>
+          PTS_LAG_3<br>
+          MIN_LAG_1<br>
+          MIN_LAG_2<br>
+          MIN_LAG_3
+        </div>
+      </div>
+      <div class="feat-cell">
+        <div class="feat-cell-group">Context</div>
+        <div class="feat-cell-items">
+          PTS_SEASON_AVG<br>
+          PTS_STD_5<br>
+          IS_HOME<br>
+          DAYS_REST<br>
+          GAME_NUM<br>
+          OPP_GAMES_PLAYED
+        </div>
+      </div>
+      <div class="feat-cell" style="grid-column: 1 / -1">
+        <div class="feat-cell-group">Opponent Defense</div>
+        <div class="feat-cell-items" style="display:flex; gap:2rem; flex-wrap:wrap">
+          <span>OPP_DEF_AVG</span>
+          <span>OPP_DEF_ROLL_5</span>
+          <span>OPP_DEF_ROLL_10</span>
+          <span>OPP_DEF_REG (Bayesian)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics-section">
+    <div class="section-label">Evaluation Metrics</div>
+    <div class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-icon">📏</div>
+        <div>
+          <div class="metric-label">Validation MAE</div>
+          <div class="metric-val">~3–4 <span style="font-size:1rem;color:#888">pts</span></div>
+          <div class="metric-desc">Mean Absolute Error on the last 20% of games, ordered chronologically.</div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon">📐</div>
+        <div>
+          <div class="metric-label">Validation RMSE</div>
+          <div class="metric-val">~5–6 <span style="font-size:1rem;color:#888">pts</span></div>
+          <div class="metric-desc">Root Mean Squared Error — penalizes large misses more than MAE.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT FILES -->
+  <div class="output-section">
+    <div class="section-label">Output Artifacts</div>
+    <div class="output-list">
+      <div class="output-file">
+        <span class="output-ext ext-parquet">parquet</span>
+        <span class="output-name">model/df_raw.parquet</span>
+        <span class="output-desc">All player-game rows fetched from the API (raw, no features)</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-parquet">parquet</span>
+        <span class="output-name">model/df_model.parquet</span>
+        <span class="output-desc">Full feature-engineered dataset ready for training</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/nba_xgb_model.json</span>
+        <span class="output-desc">Serialized XGBoost model for reproducible inference</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-csv">csv</span>
+        <span class="output-name">model/predictions_history.csv</span>
+        <span class="output-desc">Full log of all predictions: actual vs predicted, IS_VALIDATION flag</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/bulls_dashboard.json</span>
+        <span class="output-desc">Web-ready payload: last 10 games + tomorrow's predictions + model metrics</span>
+      </div>
+      <div class="output-file">
+        <span class="output-ext ext-json">json</span>
+        <span class="output-name">model/meta.json</span>
+        <span class="output-desc">Run metadata: dates, row counts, MAE, RMSE, best XGB iteration</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>Chicago Bulls</span> · NBA Points Prediction Pipeline · MSADS Time Series 31006 · UChicago
+  </footer>
+
+</div><!-- /page-wrap -->
+
+<script>
+  // Staggered entrance for pipeline phases
+  const phases = document.querySelectorAll('.phase');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, _) => {
+      if (entry.isIntersecting) {
+        const idx = Array.from(phases).indexOf(entry.target);
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, idx * 80);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  phases.forEach(p => observer.observe(p));
+</script>
+</body>
+</html>
