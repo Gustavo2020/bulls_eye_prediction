@@ -1,23 +1,122 @@
 {
   "team": "Chicago Bulls",
   "abbreviation": "CHI",
-  "last_updated": "2026-02-25",
+  "last_updated": "2026-02-27",
   "model_version": "v2_calibrated",
   "model_metrics": {
-    "q50_mae": 3.982,
-    "q50_rmse": 5.397,
-    "q50_r2": 0.381,
+    "q50_mae": 3.978,
+    "q50_rmse": 5.39,
+    "q50_r2": 0.383,
     "raw_interval_coverage_80pct": 0.738,
-    "raw_avg_interval_width_pts": 12.2,
+    "raw_avg_interval_width_pts": 12.19,
     "cal_interval_coverage_80pct": 0.799,
     "cal_avg_interval_width_pts": 11.17,
     "calibrated_players": 238,
-    "global_fallback_factor": 0.9642,
-    "best_iter_q10": 132,
-    "best_iter_q50": 143,
-    "best_iter_q90": 83
+    "global_fallback_factor": 0.9635,
+    "best_iter_q10": 152,
+    "best_iter_q50": 130,
+    "best_iter_q90": 97
   },
   "recent_games": [
+    {
+      "game_id": "0022500853",
+      "game_date": "2026-02-27",
+      "opponent": "POR",
+      "is_home": 1,
+      "result": "L",
+      "players": [
+        {
+          "player_name": "Matas Buzelis",
+          "pts_actual": 20,
+          "pts_floor": 5.4,
+          "pts_predicted": 14.3,
+          "pts_ceiling": 23.2,
+          "pts_error": -5.7,
+          "in_interval": 1,
+          "interval_width": 17.8
+        },
+        {
+          "player_name": "Tre Jones",
+          "pts_actual": 19,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.8,
+          "pts_ceiling": 18.1,
+          "pts_error": -8.2,
+          "in_interval": 0,
+          "interval_width": 14.6
+        },
+        {
+          "player_name": "Josh Giddey",
+          "pts_actual": 15,
+          "pts_floor": 4.0,
+          "pts_predicted": 12.5,
+          "pts_ceiling": 21.0,
+          "pts_error": -2.5,
+          "in_interval": 1,
+          "interval_width": 17.0
+        },
+        {
+          "player_name": "Nick Richards",
+          "pts_actual": 14,
+          "pts_floor": 1.8,
+          "pts_predicted": 7.6,
+          "pts_ceiling": 13.3,
+          "pts_error": -6.4,
+          "in_interval": 0,
+          "interval_width": 11.5
+        },
+        {
+          "player_name": "Isaac Okoro",
+          "pts_actual": 12,
+          "pts_floor": 4.0,
+          "pts_predicted": 11.5,
+          "pts_ceiling": 19.0,
+          "pts_error": -0.5,
+          "in_interval": 1,
+          "interval_width": 15.0
+        },
+        {
+          "player_name": "Leonard Miller",
+          "pts_actual": 11,
+          "pts_floor": 0.0,
+          "pts_predicted": 1.4,
+          "pts_ceiling": 4.8,
+          "pts_error": -9.6,
+          "in_interval": 0,
+          "interval_width": 4.8
+        },
+        {
+          "player_name": "Collin Sexton",
+          "pts_actual": 10,
+          "pts_floor": 2.8,
+          "pts_predicted": 11.1,
+          "pts_ceiling": 19.5,
+          "pts_error": 1.1,
+          "in_interval": 1,
+          "interval_width": 16.7
+        },
+        {
+          "player_name": "Guerschon Yabusele",
+          "pts_actual": 6,
+          "pts_floor": 2.8,
+          "pts_predicted": 10.0,
+          "pts_ceiling": 17.1,
+          "pts_error": 4.0,
+          "in_interval": 1,
+          "interval_width": 14.3
+        },
+        {
+          "player_name": "Rob Dillingham",
+          "pts_actual": 5,
+          "pts_floor": 0.3,
+          "pts_predicted": 6.1,
+          "pts_ceiling": 11.9,
+          "pts_error": 1.1,
+          "in_interval": 1,
+          "interval_width": 11.6
+        }
+      ]
+    },
     {
       "game_id": "0022500836",
       "game_date": "2026-02-25",
@@ -28,102 +127,102 @@
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 32,
-          "pts_floor": 4.4,
-          "pts_predicted": 12.5,
-          "pts_ceiling": 20.6,
-          "pts_error": -19.5,
+          "pts_floor": 4.7,
+          "pts_predicted": 13.1,
+          "pts_ceiling": 21.6,
+          "pts_error": -18.9,
           "in_interval": 0,
-          "interval_width": 16.2
+          "interval_width": 16.9
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 11,
-          "pts_floor": 2.1,
+          "pts_floor": 2.3,
           "pts_predicted": 9.2,
-          "pts_ceiling": 16.2,
+          "pts_ceiling": 16.0,
           "pts_error": -1.8,
           "in_interval": 1,
-          "interval_width": 14.1
+          "interval_width": 13.7
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 11,
-          "pts_floor": 2.7,
-          "pts_predicted": 9.6,
-          "pts_ceiling": 16.5,
-          "pts_error": -1.4,
+          "pts_floor": 2.0,
+          "pts_predicted": 9.0,
+          "pts_ceiling": 16.0,
+          "pts_error": -2.0,
           "in_interval": 1,
-          "interval_width": 13.8
+          "interval_width": 14.0
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 10,
-          "pts_floor": 2.8,
-          "pts_predicted": 10.3,
-          "pts_ceiling": 17.7,
-          "pts_error": 0.3,
+          "pts_floor": 1.6,
+          "pts_predicted": 9.5,
+          "pts_ceiling": 17.4,
+          "pts_error": -0.5,
           "in_interval": 1,
-          "interval_width": 14.9
+          "interval_width": 15.8
         },
         {
           "player_name": "Josh Giddey",
           "pts_actual": 8,
-          "pts_floor": 2.7,
-          "pts_predicted": 11.0,
-          "pts_ceiling": 19.4,
-          "pts_error": 3.0,
+          "pts_floor": 3.2,
+          "pts_predicted": 11.9,
+          "pts_ceiling": 20.5,
+          "pts_error": 3.9,
           "in_interval": 1,
-          "interval_width": 16.7
+          "interval_width": 17.3
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 7,
-          "pts_floor": 3.8,
-          "pts_predicted": 11.0,
-          "pts_ceiling": 18.2,
-          "pts_error": 4.0,
+          "pts_floor": 4.9,
+          "pts_predicted": 11.9,
+          "pts_ceiling": 18.9,
+          "pts_error": 4.9,
           "in_interval": 1,
-          "interval_width": 14.4
+          "interval_width": 14.0
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 6,
           "pts_floor": 0.0,
-          "pts_predicted": 5.1,
-          "pts_ceiling": 11.0,
-          "pts_error": -0.9,
+          "pts_predicted": 5.3,
+          "pts_ceiling": 11.2,
+          "pts_error": -0.7,
           "in_interval": 1,
-          "interval_width": 11.0
+          "interval_width": 11.2
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 6,
-          "pts_floor": 0.0,
-          "pts_predicted": 6.2,
-          "pts_ceiling": 12.6,
-          "pts_error": 0.2,
+          "pts_floor": 0.4,
+          "pts_predicted": 6.8,
+          "pts_ceiling": 13.2,
+          "pts_error": 0.8,
           "in_interval": 1,
-          "interval_width": 12.6
+          "interval_width": 12.8
         },
         {
           "player_name": "Leonard Miller",
           "pts_actual": 5,
           "pts_floor": 0.0,
-          "pts_predicted": 0.7,
-          "pts_ceiling": 4.1,
-          "pts_error": -4.3,
+          "pts_predicted": 1.2,
+          "pts_ceiling": 4.2,
+          "pts_error": -3.8,
           "in_interval": 0,
-          "interval_width": 4.1
+          "interval_width": 4.2
         },
         {
           "player_name": "Tre Jones",
           "pts_actual": 3,
-          "pts_floor": 2.9,
-          "pts_predicted": 10.5,
-          "pts_ceiling": 18.0,
-          "pts_error": 7.5,
+          "pts_floor": 3.0,
+          "pts_predicted": 10.6,
+          "pts_ceiling": 18.2,
+          "pts_error": 7.6,
           "in_interval": 1,
-          "interval_width": 15.1
+          "interval_width": 15.2
         }
       ]
     },
@@ -137,102 +236,102 @@
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 15,
-          "pts_floor": 5.2,
-          "pts_predicted": 13.4,
-          "pts_ceiling": 21.6,
-          "pts_error": -1.6,
+          "pts_floor": 4.7,
+          "pts_predicted": 12.8,
+          "pts_ceiling": 21.0,
+          "pts_error": -2.2,
           "in_interval": 1,
-          "interval_width": 16.4
+          "interval_width": 16.3
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 12,
-          "pts_floor": 4.1,
-          "pts_predicted": 11.2,
-          "pts_ceiling": 18.4,
-          "pts_error": -0.8,
+          "pts_floor": 4.3,
+          "pts_predicted": 11.7,
+          "pts_ceiling": 19.0,
+          "pts_error": -0.3,
           "in_interval": 1,
-          "interval_width": 14.3
+          "interval_width": 14.7
         },
         {
           "player_name": "Jalen Smith",
           "pts_actual": 12,
-          "pts_floor": 3.1,
-          "pts_predicted": 10.8,
+          "pts_floor": 3.3,
+          "pts_predicted": 10.9,
           "pts_ceiling": 18.4,
-          "pts_error": -1.2,
+          "pts_error": -1.1,
           "in_interval": 1,
-          "interval_width": 15.3
+          "interval_width": 15.1
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 11,
-          "pts_floor": 2.3,
-          "pts_predicted": 8.9,
-          "pts_ceiling": 15.4,
-          "pts_error": -2.1,
+          "pts_floor": 1.5,
+          "pts_predicted": 7.9,
+          "pts_ceiling": 14.2,
+          "pts_error": -3.1,
           "in_interval": 1,
-          "interval_width": 13.1
+          "interval_width": 12.7
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 10,
-          "pts_floor": 1.7,
-          "pts_predicted": 8.2,
-          "pts_ceiling": 14.6,
-          "pts_error": -1.8,
-          "in_interval": 1,
-          "interval_width": 12.9
-        },
-        {
-          "player_name": "Nick Richards",
-          "pts_actual": 9,
-          "pts_floor": 0.1,
-          "pts_predicted": 6.7,
-          "pts_ceiling": 13.2,
-          "pts_error": -2.3,
+          "pts_floor": 1.9,
+          "pts_predicted": 8.4,
+          "pts_ceiling": 15.0,
+          "pts_error": -1.6,
           "in_interval": 1,
           "interval_width": 13.1
         },
         {
+          "player_name": "Nick Richards",
+          "pts_actual": 9,
+          "pts_floor": 0.3,
+          "pts_predicted": 6.7,
+          "pts_ceiling": 13.1,
+          "pts_error": -2.3,
+          "in_interval": 1,
+          "interval_width": 12.8
+        },
+        {
           "player_name": "Collin Sexton",
           "pts_actual": 8,
-          "pts_floor": 3.3,
-          "pts_predicted": 10.7,
-          "pts_ceiling": 18.1,
-          "pts_error": 2.7,
+          "pts_floor": 2.4,
+          "pts_predicted": 10.3,
+          "pts_ceiling": 18.2,
+          "pts_error": 2.3,
           "in_interval": 1,
-          "interval_width": 14.8
+          "interval_width": 15.8
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 8,
           "pts_floor": 0.0,
           "pts_predicted": 3.9,
-          "pts_ceiling": 9.7,
+          "pts_ceiling": 9.2,
           "pts_error": -4.1,
           "in_interval": 1,
-          "interval_width": 9.7
+          "interval_width": 9.2
         },
         {
           "player_name": "Tre Jones",
           "pts_actual": 8,
-          "pts_floor": 3.4,
-          "pts_predicted": 11.0,
-          "pts_ceiling": 18.6,
-          "pts_error": 3.0,
+          "pts_floor": 3.6,
+          "pts_predicted": 11.2,
+          "pts_ceiling": 18.9,
+          "pts_error": 3.2,
           "in_interval": 1,
-          "interval_width": 15.2
+          "interval_width": 15.3
         },
         {
           "player_name": "Josh Giddey",
           "pts_actual": 6,
-          "pts_floor": 4.5,
+          "pts_floor": 4.6,
           "pts_predicted": 12.8,
-          "pts_ceiling": 21.1,
+          "pts_ceiling": 20.9,
           "pts_error": 6.8,
           "in_interval": 1,
-          "interval_width": 16.6
+          "interval_width": 16.3
         }
       ]
     },
@@ -246,112 +345,112 @@
         {
           "player_name": "Josh Giddey",
           "pts_actual": 27,
-          "pts_floor": 4.0,
+          "pts_floor": 3.8,
           "pts_predicted": 12.1,
-          "pts_ceiling": 20.3,
+          "pts_ceiling": 20.4,
           "pts_error": -14.9,
           "in_interval": 0,
-          "interval_width": 16.3
+          "interval_width": 16.6
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 15,
           "pts_floor": 3.1,
-          "pts_predicted": 10.2,
-          "pts_ceiling": 17.3,
-          "pts_error": -4.8,
+          "pts_predicted": 10.4,
+          "pts_ceiling": 17.7,
+          "pts_error": -4.6,
           "in_interval": 1,
-          "interval_width": 14.2
+          "interval_width": 14.6
         },
         {
           "player_name": "Jalen Smith",
           "pts_actual": 15,
-          "pts_floor": 3.3,
+          "pts_floor": 3.5,
           "pts_predicted": 10.6,
-          "pts_ceiling": 17.8,
+          "pts_ceiling": 17.7,
           "pts_error": -4.4,
           "in_interval": 1,
-          "interval_width": 14.5
+          "interval_width": 14.2
         },
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 15,
-          "pts_floor": 5.0,
-          "pts_predicted": 13.4,
-          "pts_ceiling": 21.7,
-          "pts_error": -1.6,
+          "pts_floor": 4.4,
+          "pts_predicted": 12.8,
+          "pts_ceiling": 21.2,
+          "pts_error": -2.2,
           "in_interval": 1,
-          "interval_width": 16.7
+          "interval_width": 16.8
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 12,
-          "pts_floor": 0.8,
-          "pts_predicted": 7.0,
-          "pts_ceiling": 13.3,
-          "pts_error": -5.0,
+          "pts_floor": 0.7,
+          "pts_predicted": 7.2,
+          "pts_ceiling": 13.8,
+          "pts_error": -4.8,
           "in_interval": 1,
-          "interval_width": 12.5
+          "interval_width": 13.1
         },
         {
           "player_name": "Tre Jones",
           "pts_actual": 7,
-          "pts_floor": 3.9,
-          "pts_predicted": 10.8,
-          "pts_ceiling": 17.7,
-          "pts_error": 3.8,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.7,
+          "pts_ceiling": 17.8,
+          "pts_error": 3.7,
           "in_interval": 1,
-          "interval_width": 13.8
+          "interval_width": 14.3
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 6,
           "pts_floor": 2.1,
-          "pts_predicted": 8.7,
-          "pts_ceiling": 15.3,
-          "pts_error": 2.7,
+          "pts_predicted": 9.2,
+          "pts_ceiling": 16.3,
+          "pts_error": 3.2,
           "in_interval": 1,
-          "interval_width": 13.2
+          "interval_width": 14.2
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 5,
           "pts_floor": 0.0,
-          "pts_predicted": 5.0,
-          "pts_ceiling": 11.1,
-          "pts_error": 0.0,
+          "pts_predicted": 5.2,
+          "pts_ceiling": 11.5,
+          "pts_error": 0.2,
           "in_interval": 1,
-          "interval_width": 11.1
+          "interval_width": 11.5
         },
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 4,
-          "pts_floor": 7.9,
-          "pts_predicted": 16.6,
-          "pts_ceiling": 25.4,
-          "pts_error": 12.6,
+          "pts_floor": 7.5,
+          "pts_predicted": 16.3,
+          "pts_ceiling": 25.1,
+          "pts_error": 12.3,
           "in_interval": 0,
-          "interval_width": 17.5
+          "interval_width": 17.6
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 2,
-          "pts_floor": 3.8,
-          "pts_predicted": 11.5,
-          "pts_ceiling": 19.3,
-          "pts_error": 9.5,
+          "pts_floor": 3.0,
+          "pts_predicted": 10.9,
+          "pts_ceiling": 18.8,
+          "pts_error": 8.9,
           "in_interval": 0,
-          "interval_width": 15.5
+          "interval_width": 15.8
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 2,
           "pts_floor": 0.0,
-          "pts_predicted": 4.5,
-          "pts_ceiling": 10.4,
-          "pts_error": 2.5,
+          "pts_predicted": 4.9,
+          "pts_ceiling": 10.6,
+          "pts_error": 2.9,
           "in_interval": 1,
-          "interval_width": 10.4
+          "interval_width": 10.6
         }
       ]
     },
@@ -365,112 +464,112 @@
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 20,
-          "pts_floor": 7.5,
-          "pts_predicted": 16.2,
-          "pts_ceiling": 25.0,
-          "pts_error": -3.8,
+          "pts_floor": 8.2,
+          "pts_predicted": 16.7,
+          "pts_ceiling": 25.2,
+          "pts_error": -3.3,
           "in_interval": 1,
-          "interval_width": 17.5
+          "interval_width": 17.0
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 16,
-          "pts_floor": 2.6,
-          "pts_predicted": 9.9,
-          "pts_ceiling": 17.3,
-          "pts_error": -6.1,
+          "pts_floor": 3.5,
+          "pts_predicted": 10.8,
+          "pts_ceiling": 18.0,
+          "pts_error": -5.2,
           "in_interval": 1,
-          "interval_width": 14.7
+          "interval_width": 14.5
         },
         {
           "player_name": "Tre Jones",
           "pts_actual": 12,
-          "pts_floor": 3.5,
-          "pts_predicted": 10.6,
-          "pts_ceiling": 17.7,
-          "pts_error": -1.4,
+          "pts_floor": 3.8,
+          "pts_predicted": 10.7,
+          "pts_ceiling": 17.6,
+          "pts_error": -1.3,
           "in_interval": 1,
-          "interval_width": 14.2
+          "interval_width": 13.8
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 11,
-          "pts_floor": 5.4,
-          "pts_predicted": 13.5,
-          "pts_ceiling": 21.6,
-          "pts_error": 2.5,
+          "pts_floor": 4.7,
+          "pts_predicted": 13.3,
+          "pts_ceiling": 21.9,
+          "pts_error": 2.3,
           "in_interval": 1,
-          "interval_width": 16.2
+          "interval_width": 17.2
         },
         {
           "player_name": "Jalen Smith",
           "pts_actual": 9,
-          "pts_floor": 3.0,
-          "pts_predicted": 10.0,
-          "pts_ceiling": 17.1,
-          "pts_error": 1.0,
+          "pts_floor": 1.3,
+          "pts_predicted": 9.8,
+          "pts_ceiling": 18.2,
+          "pts_error": 0.8,
           "in_interval": 1,
-          "interval_width": 14.1
+          "interval_width": 16.9
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 8,
-          "pts_floor": 0.4,
-          "pts_predicted": 6.8,
-          "pts_ceiling": 13.2,
-          "pts_error": -1.2,
+          "pts_floor": 0.1,
+          "pts_predicted": 6.9,
+          "pts_ceiling": 13.7,
+          "pts_error": -1.1,
           "in_interval": 1,
-          "interval_width": 12.8
+          "interval_width": 13.6
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 6,
           "pts_floor": 0.0,
-          "pts_predicted": 6.1,
-          "pts_ceiling": 12.6,
-          "pts_error": 0.1,
+          "pts_predicted": 6.4,
+          "pts_ceiling": 12.7,
+          "pts_error": 0.4,
           "in_interval": 1,
-          "interval_width": 12.6
+          "interval_width": 12.7
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 6,
-          "pts_floor": 2.6,
-          "pts_predicted": 9.4,
-          "pts_ceiling": 16.2,
-          "pts_error": 3.4,
+          "pts_floor": 2.3,
+          "pts_predicted": 9.2,
+          "pts_ceiling": 16.1,
+          "pts_error": 3.2,
           "in_interval": 1,
-          "interval_width": 13.6
+          "interval_width": 13.8
         },
         {
           "player_name": "Josh Giddey",
           "pts_actual": 5,
-          "pts_floor": 4.6,
-          "pts_predicted": 12.5,
-          "pts_ceiling": 20.5,
-          "pts_error": 7.5,
+          "pts_floor": 4.9,
+          "pts_predicted": 12.8,
+          "pts_ceiling": 20.7,
+          "pts_error": 7.8,
           "in_interval": 1,
-          "interval_width": 15.9
+          "interval_width": 15.8
         },
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 4,
-          "pts_floor": 6.1,
-          "pts_predicted": 14.3,
-          "pts_ceiling": 22.5,
-          "pts_error": 10.3,
+          "pts_floor": 5.2,
+          "pts_predicted": 13.7,
+          "pts_ceiling": 22.2,
+          "pts_error": 9.7,
           "in_interval": 0,
-          "interval_width": 16.4
+          "interval_width": 17.0
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 4,
           "pts_floor": 0.7,
-          "pts_predicted": 7.4,
-          "pts_ceiling": 14.0,
-          "pts_error": 3.4,
+          "pts_predicted": 7.1,
+          "pts_ceiling": 13.6,
+          "pts_error": 3.1,
           "in_interval": 1,
-          "interval_width": 13.3
+          "interval_width": 12.9
         }
       ]
     },
@@ -485,99 +584,99 @@
           "player_name": "Rob Dillingham",
           "pts_actual": 16,
           "pts_floor": 0.0,
-          "pts_predicted": 4.3,
-          "pts_ceiling": 9.9,
-          "pts_error": -11.7,
+          "pts_predicted": 3.6,
+          "pts_ceiling": 8.9,
+          "pts_error": -12.4,
           "in_interval": 0,
-          "interval_width": 9.9
+          "interval_width": 8.9
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 15,
-          "pts_floor": 4.5,
-          "pts_predicted": 12.6,
-          "pts_ceiling": 20.7,
-          "pts_error": -2.4,
+          "pts_floor": 5.6,
+          "pts_predicted": 13.1,
+          "pts_ceiling": 20.6,
+          "pts_error": -1.9,
           "in_interval": 1,
-          "interval_width": 16.2
+          "interval_width": 15.0
         },
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 15,
-          "pts_floor": 4.8,
-          "pts_predicted": 12.5,
-          "pts_ceiling": 20.3,
-          "pts_error": -2.5,
+          "pts_floor": 4.6,
+          "pts_predicted": 12.6,
+          "pts_ceiling": 20.7,
+          "pts_error": -2.4,
           "in_interval": 1,
-          "interval_width": 15.5
+          "interval_width": 16.1
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 13,
-          "pts_floor": 0.0,
-          "pts_predicted": 5.3,
-          "pts_ceiling": 11.4,
-          "pts_error": -7.7,
+          "pts_floor": 0.2,
+          "pts_predicted": 6.1,
+          "pts_ceiling": 12.0,
+          "pts_error": -6.9,
           "in_interval": 0,
-          "interval_width": 11.4
+          "interval_width": 11.8
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 12,
-          "pts_floor": 1.6,
-          "pts_predicted": 7.9,
+          "pts_floor": 1.2,
+          "pts_predicted": 7.7,
           "pts_ceiling": 14.2,
-          "pts_error": -4.1,
+          "pts_error": -4.3,
           "in_interval": 1,
-          "interval_width": 12.6
+          "interval_width": 13.0
         },
         {
           "player_name": "Jaden Ivey",
           "pts_actual": 10,
-          "pts_floor": 2.4,
-          "pts_predicted": 10.1,
-          "pts_ceiling": 17.8,
-          "pts_error": 0.1,
+          "pts_floor": 2.3,
+          "pts_predicted": 9.2,
+          "pts_ceiling": 16.2,
+          "pts_error": -0.8,
           "in_interval": 1,
-          "interval_width": 15.4
+          "interval_width": 13.9
         },
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 7,
-          "pts_floor": 7.5,
-          "pts_predicted": 15.7,
-          "pts_ceiling": 24.0,
-          "pts_error": 8.7,
+          "pts_floor": 7.4,
+          "pts_predicted": 15.8,
+          "pts_ceiling": 24.3,
+          "pts_error": 8.8,
           "in_interval": 0,
-          "interval_width": 16.5
+          "interval_width": 16.9
         },
         {
           "player_name": "Lachlan Olbrich",
           "pts_actual": 7,
           "pts_floor": 0.0,
-          "pts_predicted": 1.6,
-          "pts_ceiling": 5.0,
-          "pts_error": -5.4,
+          "pts_predicted": 1.7,
+          "pts_ceiling": 4.4,
+          "pts_error": -5.3,
           "in_interval": 0,
-          "interval_width": 5.0
+          "interval_width": 4.4
         },
         {
           "player_name": "Leonard Miller",
           "pts_actual": 5,
           "pts_floor": 0.0,
-          "pts_predicted": 2.1,
-          "pts_ceiling": 5.2,
-          "pts_error": -2.9,
-          "in_interval": 1,
-          "interval_width": 5.2
+          "pts_predicted": 1.1,
+          "pts_ceiling": 4.4,
+          "pts_error": -3.9,
+          "in_interval": 0,
+          "interval_width": 4.4
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 5,
           "pts_floor": 0.0,
-          "pts_predicted": 5.9,
+          "pts_predicted": 5.5,
           "pts_ceiling": 13.1,
-          "pts_error": 0.9,
+          "pts_error": 0.5,
           "in_interval": 1,
           "interval_width": 13.1
         }
@@ -593,80 +692,80 @@
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 23,
-          "pts_floor": 8.0,
-          "pts_predicted": 16.8,
-          "pts_ceiling": 25.6,
-          "pts_error": -6.2,
+          "pts_floor": 8.4,
+          "pts_predicted": 16.9,
+          "pts_ceiling": 25.3,
+          "pts_error": -6.1,
           "in_interval": 1,
-          "interval_width": 17.6
+          "interval_width": 16.9
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 21,
-          "pts_floor": 5.1,
-          "pts_predicted": 12.8,
-          "pts_ceiling": 20.4,
-          "pts_error": -8.2,
+          "pts_floor": 4.2,
+          "pts_predicted": 12.2,
+          "pts_ceiling": 20.2,
+          "pts_error": -8.8,
           "in_interval": 0,
-          "interval_width": 15.3
+          "interval_width": 16.0
         },
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 18,
-          "pts_floor": 5.8,
-          "pts_predicted": 14.3,
-          "pts_ceiling": 22.8,
-          "pts_error": -3.7,
+          "pts_floor": 5.3,
+          "pts_predicted": 14.2,
+          "pts_ceiling": 23.1,
+          "pts_error": -3.8,
           "in_interval": 1,
-          "interval_width": 17.0
+          "interval_width": 17.8
         },
         {
           "player_name": "Jaden Ivey",
           "pts_actual": 13,
-          "pts_floor": 3.0,
-          "pts_predicted": 11.1,
-          "pts_ceiling": 19.2,
-          "pts_error": -1.9,
+          "pts_floor": 2.4,
+          "pts_predicted": 10.7,
+          "pts_ceiling": 19.1,
+          "pts_error": -2.3,
           "in_interval": 1,
-          "interval_width": 16.2
+          "interval_width": 16.7
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 12,
           "pts_floor": 0.0,
-          "pts_predicted": 5.4,
-          "pts_ceiling": 12.0,
-          "pts_error": -6.6,
+          "pts_predicted": 5.8,
+          "pts_ceiling": 12.5,
+          "pts_error": -6.2,
           "in_interval": 1,
-          "interval_width": 12.0
+          "interval_width": 12.5
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 10,
-          "pts_floor": 2.9,
+          "pts_floor": 2.8,
           "pts_predicted": 10.0,
           "pts_ceiling": 17.1,
           "pts_error": 0.0,
           "in_interval": 1,
-          "interval_width": 14.2
+          "interval_width": 14.3
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 8,
           "pts_floor": 0.0,
-          "pts_predicted": 4.3,
-          "pts_ceiling": 9.9,
-          "pts_error": -3.7,
+          "pts_predicted": 4.2,
+          "pts_ceiling": 9.8,
+          "pts_error": -3.8,
           "in_interval": 1,
-          "interval_width": 9.9
+          "interval_width": 9.8
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 7,
-          "pts_floor": 2.1,
-          "pts_predicted": 8.9,
-          "pts_ceiling": 15.7,
-          "pts_error": 1.9,
+          "pts_floor": 1.5,
+          "pts_predicted": 8.3,
+          "pts_ceiling": 15.1,
+          "pts_error": 1.3,
           "in_interval": 1,
           "interval_width": 13.6
         },
@@ -674,11 +773,11 @@
           "player_name": "Guerschon Yabusele",
           "pts_actual": 3,
           "pts_floor": 0.0,
-          "pts_predicted": 6.7,
-          "pts_ceiling": 14.0,
-          "pts_error": 3.7,
+          "pts_predicted": 6.3,
+          "pts_ceiling": 13.9,
+          "pts_error": 3.3,
           "in_interval": 1,
-          "interval_width": 14.0
+          "interval_width": 13.9
         }
       ]
     },
@@ -692,92 +791,92 @@
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 21,
-          "pts_floor": 5.7,
-          "pts_predicted": 14.2,
-          "pts_ceiling": 22.6,
-          "pts_error": -6.8,
+          "pts_floor": 5.6,
+          "pts_predicted": 14.1,
+          "pts_ceiling": 22.7,
+          "pts_error": -6.9,
           "in_interval": 1,
-          "interval_width": 16.9
+          "interval_width": 17.1
         },
         {
           "player_name": "Collin Sexton",
           "pts_actual": 17,
-          "pts_floor": 4.2,
-          "pts_predicted": 11.5,
-          "pts_ceiling": 18.8,
-          "pts_error": -5.5,
+          "pts_floor": 2.7,
+          "pts_predicted": 10.5,
+          "pts_ceiling": 18.2,
+          "pts_error": -6.5,
           "in_interval": 1,
-          "interval_width": 14.6
+          "interval_width": 15.5
         },
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 15,
-          "pts_floor": 7.0,
-          "pts_predicted": 15.8,
-          "pts_ceiling": 24.6,
-          "pts_error": 0.8,
+          "pts_floor": 7.5,
+          "pts_predicted": 16.1,
+          "pts_ceiling": 24.7,
+          "pts_error": 1.1,
           "in_interval": 1,
-          "interval_width": 17.6
+          "interval_width": 17.2
         },
         {
           "player_name": "Nick Richards",
           "pts_actual": 15,
           "pts_floor": 0.0,
-          "pts_predicted": 2.6,
+          "pts_predicted": 2.2,
           "pts_ceiling": 7.8,
-          "pts_error": -12.4,
+          "pts_error": -12.8,
           "in_interval": 0,
           "interval_width": 7.8
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 13,
-          "pts_floor": 2.8,
-          "pts_predicted": 9.8,
-          "pts_ceiling": 16.8,
-          "pts_error": -3.2,
+          "pts_floor": 3.0,
+          "pts_predicted": 10.2,
+          "pts_ceiling": 17.3,
+          "pts_error": -2.8,
           "in_interval": 1,
-          "interval_width": 14.0
+          "interval_width": 14.3
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 12,
-          "pts_floor": 1.0,
-          "pts_predicted": 7.7,
+          "pts_floor": 0.0,
+          "pts_predicted": 7.0,
           "pts_ceiling": 14.4,
-          "pts_error": -4.3,
+          "pts_error": -5.0,
           "in_interval": 1,
-          "interval_width": 13.4
+          "interval_width": 14.4
         },
         {
           "player_name": "Jaden Ivey",
           "pts_actual": 10,
-          "pts_floor": 3.3,
-          "pts_predicted": 10.8,
-          "pts_ceiling": 18.3,
-          "pts_error": 0.8,
+          "pts_floor": 2.2,
+          "pts_predicted": 10.2,
+          "pts_ceiling": 18.2,
+          "pts_error": 0.2,
           "in_interval": 1,
-          "interval_width": 15.0
+          "interval_width": 16.0
         },
         {
           "player_name": "Rob Dillingham",
           "pts_actual": 9,
           "pts_floor": 0.0,
-          "pts_predicted": 1.4,
-          "pts_ceiling": 4.9,
-          "pts_error": -7.6,
+          "pts_predicted": 1.8,
+          "pts_ceiling": 5.0,
+          "pts_error": -7.2,
           "in_interval": 0,
-          "interval_width": 4.9
+          "interval_width": 5.0
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 8,
-          "pts_floor": 2.3,
-          "pts_predicted": 9.2,
-          "pts_ceiling": 16.2,
-          "pts_error": 1.2,
+          "pts_floor": 2.1,
+          "pts_predicted": 9.1,
+          "pts_ceiling": 16.1,
+          "pts_error": 1.1,
           "in_interval": 1,
-          "interval_width": 13.9
+          "interval_width": 14.0
         }
       ]
     },
@@ -791,92 +890,92 @@
         {
           "player_name": "Anfernee Simons",
           "pts_actual": 22,
-          "pts_floor": 7.3,
-          "pts_predicted": 16.4,
-          "pts_ceiling": 25.5,
-          "pts_error": -5.6,
+          "pts_floor": 8.3,
+          "pts_predicted": 16.6,
+          "pts_ceiling": 24.9,
+          "pts_error": -5.4,
           "in_interval": 1,
-          "interval_width": 18.2
+          "interval_width": 16.6
         },
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 18,
-          "pts_floor": 5.4,
+          "pts_floor": 5.6,
           "pts_predicted": 14.1,
-          "pts_ceiling": 22.8,
+          "pts_ceiling": 22.7,
           "pts_error": -3.9,
           "in_interval": 1,
-          "interval_width": 17.4
+          "interval_width": 17.1
         },
         {
           "player_name": "Guerschon Yabusele",
           "pts_actual": 15,
           "pts_floor": 0.0,
-          "pts_predicted": 2.6,
-          "pts_ceiling": 7.2,
-          "pts_error": -12.4,
+          "pts_predicted": 2.5,
+          "pts_ceiling": 6.6,
+          "pts_error": -12.5,
           "in_interval": 0,
-          "interval_width": 7.2
+          "interval_width": 6.6
         },
         {
           "player_name": "Jalen Smith",
           "pts_actual": 13,
-          "pts_floor": 3.1,
+          "pts_floor": 3.3,
           "pts_predicted": 10.7,
-          "pts_ceiling": 18.3,
+          "pts_ceiling": 18.1,
           "pts_error": -2.3,
           "in_interval": 1,
-          "interval_width": 15.2
+          "interval_width": 14.8
         },
         {
           "player_name": "Jaden Ivey",
           "pts_actual": 13,
-          "pts_floor": 3.3,
-          "pts_predicted": 10.2,
-          "pts_ceiling": 17.2,
-          "pts_error": -2.8,
+          "pts_floor": 0.5,
+          "pts_predicted": 8.6,
+          "pts_ceiling": 16.6,
+          "pts_error": -4.4,
           "in_interval": 1,
-          "interval_width": 13.9
+          "interval_width": 16.1
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 10,
-          "pts_floor": 2.6,
+          "pts_floor": 2.5,
           "pts_predicted": 9.8,
-          "pts_ceiling": 17.0,
+          "pts_ceiling": 17.1,
           "pts_error": -0.2,
           "in_interval": 1,
-          "interval_width": 14.4
+          "interval_width": 14.6
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 9,
-          "pts_floor": 2.4,
-          "pts_predicted": 10.1,
-          "pts_ceiling": 17.8,
-          "pts_error": 1.1,
+          "pts_floor": 1.8,
+          "pts_predicted": 9.8,
+          "pts_ceiling": 17.7,
+          "pts_error": 0.8,
           "in_interval": 1,
-          "interval_width": 15.4
+          "interval_width": 15.9
         },
         {
           "player_name": "Mac McClung",
           "pts_actual": 4,
           "pts_floor": 0.0,
-          "pts_predicted": 4.0,
-          "pts_ceiling": 9.1,
-          "pts_error": 0.0,
+          "pts_predicted": 3.5,
+          "pts_ceiling": 8.6,
+          "pts_error": -0.5,
           "in_interval": 1,
-          "interval_width": 9.1
+          "interval_width": 8.6
         },
         {
           "player_name": "Yuki Kawamura",
           "pts_actual": 3,
           "pts_floor": 0.0,
-          "pts_predicted": 5.7,
-          "pts_ceiling": 12.1,
-          "pts_error": 2.7,
+          "pts_predicted": 5.8,
+          "pts_ceiling": 11.6,
+          "pts_error": 2.8,
           "in_interval": 1,
-          "interval_width": 12.1
+          "interval_width": 11.6
         }
       ]
     },
@@ -890,60 +989,60 @@
         {
           "player_name": "Matas Buzelis",
           "pts_actual": 22,
-          "pts_floor": 4.3,
-          "pts_predicted": 12.3,
+          "pts_floor": 4.6,
+          "pts_predicted": 12.5,
           "pts_ceiling": 20.4,
-          "pts_error": -9.7,
+          "pts_error": -9.5,
           "in_interval": 0,
-          "interval_width": 16.1
+          "interval_width": 15.8
         },
         {
           "player_name": "Coby White",
           "pts_actual": 21,
-          "pts_floor": 9.2,
-          "pts_predicted": 17.6,
-          "pts_ceiling": 26.1,
-          "pts_error": -3.4,
+          "pts_floor": 8.6,
+          "pts_predicted": 17.1,
+          "pts_ceiling": 25.6,
+          "pts_error": -3.9,
           "in_interval": 1,
-          "interval_width": 16.9
+          "interval_width": 17.0
         },
         {
           "player_name": "Ayo Dosunmu",
           "pts_actual": 17,
-          "pts_floor": 7.0,
-          "pts_predicted": 16.0,
-          "pts_ceiling": 25.0,
-          "pts_error": -1.0,
+          "pts_floor": 6.8,
+          "pts_predicted": 15.8,
+          "pts_ceiling": 24.8,
+          "pts_error": -1.2,
           "in_interval": 1,
           "interval_width": 18.0
         },
         {
           "player_name": "Patrick Williams",
           "pts_actual": 17,
-          "pts_floor": 0.7,
-          "pts_predicted": 7.9,
-          "pts_ceiling": 15.2,
-          "pts_error": -9.1,
+          "pts_floor": 1.1,
+          "pts_predicted": 8.4,
+          "pts_ceiling": 15.7,
+          "pts_error": -8.6,
           "in_interval": 0,
-          "interval_width": 14.5
+          "interval_width": 14.6
         },
         {
           "player_name": "Jalen Smith",
           "pts_actual": 16,
-          "pts_floor": 4.0,
-          "pts_predicted": 10.7,
-          "pts_ceiling": 17.4,
-          "pts_error": -5.3,
+          "pts_floor": 4.5,
+          "pts_predicted": 11.2,
+          "pts_ceiling": 17.9,
+          "pts_error": -4.8,
           "in_interval": 1,
           "interval_width": 13.4
         },
         {
           "player_name": "Isaac Okoro",
           "pts_actual": 9,
-          "pts_floor": 1.8,
-          "pts_predicted": 8.7,
-          "pts_ceiling": 15.6,
-          "pts_error": -0.3,
+          "pts_floor": 2.1,
+          "pts_predicted": 9.0,
+          "pts_ceiling": 15.9,
+          "pts_error": 0.0,
           "in_interval": 1,
           "interval_width": 13.8
         },
@@ -951,243 +1050,216 @@
           "player_name": "Dalen Terry",
           "pts_actual": 6,
           "pts_floor": 0.0,
-          "pts_predicted": 5.2,
-          "pts_ceiling": 11.6,
-          "pts_error": -0.8,
+          "pts_predicted": 5.5,
+          "pts_ceiling": 12.2,
+          "pts_error": -0.5,
           "in_interval": 1,
-          "interval_width": 11.6
+          "interval_width": 12.2
         },
         {
           "player_name": "Yuki Kawamura",
           "pts_actual": 5,
           "pts_floor": 0.0,
-          "pts_predicted": 5.1,
-          "pts_ceiling": 11.7,
-          "pts_error": 0.1,
+          "pts_predicted": 5.2,
+          "pts_ceiling": 11.2,
+          "pts_error": 0.2,
           "in_interval": 1,
-          "interval_width": 11.7
+          "interval_width": 11.2
         },
         {
           "player_name": "Lachlan Olbrich",
           "pts_actual": 2,
           "pts_floor": 0.0,
-          "pts_predicted": 1.8,
-          "pts_ceiling": 6.1,
-          "pts_error": -0.2,
-          "in_interval": 1,
-          "interval_width": 6.1
-        }
-      ]
-    },
-    {
-      "game_id": "0022500692",
-      "game_date": "2026-02-01",
-      "opponent": "MIA",
-      "is_home": 0,
-      "result": "W",
-      "players": [
-        {
-          "player_name": "Ayo Dosunmu",
-          "pts_actual": 29,
-          "pts_floor": 5.9,
-          "pts_predicted": 14.6,
-          "pts_ceiling": 23.3,
-          "pts_error": -14.4,
-          "in_interval": 0,
-          "interval_width": 17.4
-        },
-        {
-          "player_name": "Ayo Dosunmu",
-          "pts_actual": 29,
-          "pts_floor": 5.9,
-          "pts_predicted": 14.6,
-          "pts_ceiling": 23.3,
-          "pts_error": -14.4,
-          "in_interval": 0,
-          "interval_width": 17.4
-        },
-        {
-          "player_name": "Matas Buzelis",
-          "pts_actual": 21,
-          "pts_floor": 5.6,
-          "pts_predicted": 13.7,
-          "pts_ceiling": 21.7,
-          "pts_error": -7.3,
-          "in_interval": 1,
-          "interval_width": 16.1
-        },
-        {
-          "player_name": "Matas Buzelis",
-          "pts_actual": 21,
-          "pts_floor": 5.6,
-          "pts_predicted": 13.7,
-          "pts_ceiling": 21.7,
-          "pts_error": -7.3,
-          "in_interval": 1,
-          "interval_width": 16.1
-        },
-        {
-          "player_name": "Isaac Okoro",
-          "pts_actual": 20,
-          "pts_floor": 1.2,
-          "pts_predicted": 8.6,
-          "pts_ceiling": 15.9,
-          "pts_error": -11.4,
-          "in_interval": 0,
-          "interval_width": 14.7
-        },
-        {
-          "player_name": "Isaac Okoro",
-          "pts_actual": 20,
-          "pts_floor": 1.2,
-          "pts_predicted": 8.6,
-          "pts_ceiling": 16.0,
-          "pts_error": -11.4,
-          "in_interval": 0,
-          "interval_width": 14.8
-        },
-        {
-          "player_name": "Patrick Williams",
-          "pts_actual": 15,
-          "pts_floor": 0.3,
-          "pts_predicted": 6.3,
-          "pts_ceiling": 12.3,
-          "pts_error": -8.7,
-          "in_interval": 0,
-          "interval_width": 12.0
-        },
-        {
-          "player_name": "Patrick Williams",
-          "pts_actual": 15,
-          "pts_floor": 0.3,
-          "pts_predicted": 6.3,
-          "pts_ceiling": 12.3,
-          "pts_error": -8.7,
-          "in_interval": 0,
-          "interval_width": 12.0
-        },
-        {
-          "player_name": "Jevon Carter",
-          "pts_actual": 11,
-          "pts_floor": 0.0,
-          "pts_predicted": 3.8,
-          "pts_ceiling": 9.0,
-          "pts_error": -7.2,
-          "in_interval": 0,
-          "interval_width": 9.0
-        },
-        {
-          "player_name": "Jevon Carter",
-          "pts_actual": 11,
-          "pts_floor": 0.0,
-          "pts_predicted": 4.0,
-          "pts_ceiling": 9.1,
-          "pts_error": -7.0,
-          "in_interval": 0,
-          "interval_width": 9.1
-        },
-        {
-          "player_name": "Dalen Terry",
-          "pts_actual": 9,
-          "pts_floor": 0.0,
-          "pts_predicted": 3.4,
-          "pts_ceiling": 8.6,
-          "pts_error": -5.6,
-          "in_interval": 0,
-          "interval_width": 8.6
-        },
-        {
-          "player_name": "Dalen Terry",
-          "pts_actual": 9,
-          "pts_floor": 0.0,
-          "pts_predicted": 3.4,
-          "pts_ceiling": 8.6,
-          "pts_error": -5.6,
-          "in_interval": 0,
-          "interval_width": 8.6
-        },
-        {
-          "player_name": "Kevin Huerter",
-          "pts_actual": 9,
-          "pts_floor": 2.5,
-          "pts_predicted": 10.1,
-          "pts_ceiling": 17.6,
-          "pts_error": 1.1,
-          "in_interval": 1,
-          "interval_width": 15.1
-        },
-        {
-          "player_name": "Kevin Huerter",
-          "pts_actual": 9,
-          "pts_floor": 2.5,
-          "pts_predicted": 10.1,
-          "pts_ceiling": 17.6,
-          "pts_error": 1.1,
-          "in_interval": 1,
-          "interval_width": 15.1
-        },
-        {
-          "player_name": "Yuki Kawamura",
-          "pts_actual": 6,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.1,
+          "pts_predicted": 2.4,
           "pts_ceiling": 6.0,
-          "pts_error": -4.9,
+          "pts_error": 0.4,
           "in_interval": 1,
           "interval_width": 6.0
-        },
-        {
-          "player_name": "Yuki Kawamura",
-          "pts_actual": 6,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.2,
-          "pts_ceiling": 6.1,
-          "pts_error": -4.8,
-          "in_interval": 1,
-          "interval_width": 6.1
-        },
-        {
-          "player_name": "Julian Phillips",
-          "pts_actual": 3,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.7,
-          "pts_ceiling": 4.3,
-          "pts_error": -1.3,
-          "in_interval": 1,
-          "interval_width": 4.3
-        },
-        {
-          "player_name": "Julian Phillips",
-          "pts_actual": 3,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.7,
-          "pts_ceiling": 4.3,
-          "pts_error": -1.3,
-          "in_interval": 1,
-          "interval_width": 4.3
-        },
-        {
-          "player_name": "Lachlan Olbrich",
-          "pts_actual": 2,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.3,
-          "pts_ceiling": 4.2,
-          "pts_error": -0.7,
-          "in_interval": 1,
-          "interval_width": 4.2
-        },
-        {
-          "player_name": "Lachlan Olbrich",
-          "pts_actual": 2,
-          "pts_floor": 0.0,
-          "pts_predicted": 1.4,
-          "pts_ceiling": 4.3,
-          "pts_error": -0.6,
-          "in_interval": 1,
-          "interval_width": 4.3
         }
       ]
     }
   ],
-  "next_game": null
+  "next_game": {
+    "game_date": "2026-03-01",
+    "opponent": "MIL",
+    "is_home": 1,
+    "predictions": [
+      {
+        "player_name": "Anfernee Simons",
+        "pts_floor": 8.3,
+        "pts_predicted": 16.9,
+        "pts_ceiling": 25.6,
+        "pts_roll_5": 17.4,
+        "pts_season_avg": 19.4,
+        "days_rest": 7,
+        "interval_width": 17.3,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Matas Buzelis",
+        "pts_floor": 5.2,
+        "pts_predicted": 14.1,
+        "pts_ceiling": 22.9,
+        "pts_roll_5": 16.2,
+        "pts_season_avg": 11.5,
+        "days_rest": 2,
+        "interval_width": 17.7,
+        "cal_factor": 0.9988
+      },
+      {
+        "player_name": "Josh Giddey",
+        "pts_floor": 3.6,
+        "pts_predicted": 11.9,
+        "pts_ceiling": 20.3,
+        "pts_roll_5": 11.2,
+        "pts_season_avg": 14.9,
+        "days_rest": 2,
+        "interval_width": 16.7,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Isaac Okoro",
+        "pts_floor": 3.8,
+        "pts_predicted": 11.2,
+        "pts_ceiling": 18.7,
+        "pts_roll_5": 12.0,
+        "pts_season_avg": 7.7,
+        "days_rest": 2,
+        "interval_width": 14.9,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Jalen Smith",
+        "pts_floor": 3.2,
+        "pts_predicted": 10.7,
+        "pts_ceiling": 18.2,
+        "pts_roll_5": 12.8,
+        "pts_season_avg": 9.4,
+        "days_rest": 6,
+        "interval_width": 15.0,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Collin Sexton",
+        "pts_floor": 2.3,
+        "pts_predicted": 10.6,
+        "pts_ceiling": 19.0,
+        "pts_roll_5": 9.2,
+        "pts_season_avg": 16.7,
+        "days_rest": 2,
+        "interval_width": 16.7,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Tre Jones",
+        "pts_floor": 3.2,
+        "pts_predicted": 10.5,
+        "pts_ceiling": 17.8,
+        "pts_roll_5": 8.4,
+        "pts_season_avg": 10.7,
+        "days_rest": 2,
+        "interval_width": 14.6,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Jaden Ivey",
+        "pts_floor": 2.1,
+        "pts_predicted": 9.8,
+        "pts_ceiling": 17.5,
+        "pts_roll_5": 10.6,
+        "pts_season_avg": 14.9,
+        "days_rest": 17,
+        "interval_width": 15.4,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Guerschon Yabusele",
+        "pts_floor": 2.4,
+        "pts_predicted": 9.5,
+        "pts_ceiling": 16.6,
+        "pts_roll_5": 11.0,
+        "pts_season_avg": 8.2,
+        "days_rest": 2,
+        "interval_width": 14.2,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Patrick Williams",
+        "pts_floor": 2.1,
+        "pts_predicted": 9.3,
+        "pts_ceiling": 16.4,
+        "pts_roll_5": 8.2,
+        "pts_season_avg": 9.1,
+        "days_rest": 4,
+        "interval_width": 14.3,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Nick Richards",
+        "pts_floor": 1.7,
+        "pts_predicted": 7.2,
+        "pts_ceiling": 12.7,
+        "pts_roll_5": 6.2,
+        "pts_season_avg": 8.4,
+        "days_rest": 2,
+        "interval_width": 11.0,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Rob Dillingham",
+        "pts_floor": 0.2,
+        "pts_predicted": 6.0,
+        "pts_ceiling": 11.7,
+        "pts_roll_5": 7.2,
+        "pts_season_avg": 4.3,
+        "days_rest": 2,
+        "interval_width": 11.5,
+        "cal_factor": 0.9067
+      },
+      {
+        "player_name": "Yuki Kawamura",
+        "pts_floor": 0.0,
+        "pts_predicted": 3.9,
+        "pts_ceiling": 8.9,
+        "pts_roll_5": 5.8,
+        "pts_season_avg": 2.1,
+        "days_rest": 23,
+        "interval_width": 8.9,
+        "cal_factor": 0.9331
+      },
+      {
+        "player_name": "Mac McClung",
+        "pts_floor": 0.0,
+        "pts_predicted": 3.4,
+        "pts_ceiling": 8.5,
+        "pts_roll_5": 3.8,
+        "pts_season_avg": 6.3,
+        "days_rest": 23,
+        "interval_width": 8.5,
+        "cal_factor": 0.9635
+      },
+      {
+        "player_name": "Lachlan Olbrich",
+        "pts_floor": 0.0,
+        "pts_predicted": 2.0,
+        "pts_ceiling": 4.6,
+        "pts_roll_5": 3.6,
+        "pts_season_avg": 1.4,
+        "days_rest": 4,
+        "interval_width": 4.6,
+        "cal_factor": 0.7807
+      },
+      {
+        "player_name": "Leonard Miller",
+        "pts_floor": 0.0,
+        "pts_predicted": 1.3,
+        "pts_ceiling": 4.5,
+        "pts_roll_5": 2.0,
+        "pts_season_avg": 1.9,
+        "days_rest": 2,
+        "interval_width": 4.5,
+        "cal_factor": 0.9507
+      }
+    ]
+  }
 }

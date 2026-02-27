@@ -179,7 +179,7 @@ def fetch_season(season: str, known_game_ids: set[str] | None = None) -> pd.Data
 
     df = pd.DataFrame(all_rows)
     if df.empty:
-        raise RuntimeError(f"No completed games found for season {season}")
+        return pd.DataFrame()
     return df.drop_duplicates(subset=["PLAYER_ID", "GAME_ID"])
 
 
@@ -198,8 +198,9 @@ if RAW_PATH.exists():
     existing_ids = set(df_raw["GAME_ID"].astype(str).unique())
     print(f"Checking for new {CURRENT_SEASON} games (skipping {len(existing_ids):,} known)...")
     new_df = fetch_season(CURRENT_SEASON, known_game_ids=existing_ids)
-    new_df["GAME_DATE"] = pd.to_datetime(new_df["GAME_DATE"])
-    new_games = new_df[new_df["GAME_DATE"] > last_date]
+    if not new_df.empty:
+        new_df["GAME_DATE"] = pd.to_datetime(new_df["GAME_DATE"])
+    new_games = new_df if new_df.empty else new_df[new_df["GAME_DATE"] > last_date]
 
     if new_games.empty:
         print("  → No new games since last update.")
@@ -424,15 +425,16 @@ history_log["GAME_DATE"] = history_log["GAME_DATE"].dt.date
 history_log.to_csv(HISTORY_PATH, index=False)
 print(f"  → {len(history_log):,} rows saved to {HISTORY_PATH}")
 
-# ── 8. TOMORROW'S SCHEDULE (Chicago Bulls) ────────────────────────────────────
+# ── 8. NEXT SCHEDULED GAME (Chicago Bulls) — looks up to 7 days ahead ────────
 print("\n" + "=" * 55)
-print("PHASE 5 — TOMORROW'S PREDICTIONS (CHI)")
+print("PHASE 5 — NEXT GAME PREDICTIONS (CHI)")
 print("=" * 55)
 
-tomorrow       = (pd.Timestamp.now() + pd.Timedelta(days=1))
-tomorrow_str   = tomorrow.strftime("%Y-%m-%d")
-tomorrow_date  = tomorrow.date()
-chi_next_game  = None
+chi_next_game = None
+chi_is_home   = None
+chi_opponent  = None
+chi_game_date = None
+today         = pd.Timestamp.now().date()
 
 # ESPN abbreviation → NBA tricode (only entries that differ)
 ESPN_TO_NBA = {
@@ -469,7 +471,7 @@ def _find_chi_game_espn(date_str: str) -> tuple[int, str] | None:
 chi_is_home  = None
 chi_opponent = None
 
-# ── 1. Primary: CDN schedule ──────────────────────────────────────────────────
+# ── 1. Primary: CDN schedule — scan next 7 days ───────────────────────────────
 try:
     print("Fetching season schedule from cdn.nba.com...")
     sched_r = requests.get(CDN_SCHEDULE, timeout=30)
@@ -480,37 +482,44 @@ try:
         for g in day["games"]
         if g["gameId"].startswith("002")
     ]
-    chi_games = [
-        g for g in all_games_sched
-        if g.get("gameDateEst", "")[:10] == tomorrow_str
-        and (
-            g["homeTeam"]["teamTricode"] == BULLS_ABBR
-            or g["awayTeam"]["teamTricode"] == BULLS_ABBR
-        )
-    ]
-    if chi_games:
-        g = chi_games[0]
-        chi_is_home  = int(g["homeTeam"]["teamTricode"] == BULLS_ABBR)
-        chi_opponent = (
-            g["awayTeam"]["teamTricode"] if chi_is_home
-            else g["homeTeam"]["teamTricode"]
-        )
-        print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent}  [CDN]")
-    else:
-        print(f"  → CHI has no game on {tomorrow_str} [CDN]")
+    for offset in range(1, 8):
+        check_date = today + pd.Timedelta(days=offset)
+        check_str  = check_date.strftime("%Y-%m-%d")
+        found = [
+            g for g in all_games_sched
+            if g.get("gameDateEst", "")[:10] == check_str
+            and (
+                g["homeTeam"]["teamTricode"] == BULLS_ABBR
+                or g["awayTeam"]["teamTricode"] == BULLS_ABBR
+            )
+        ]
+        if found:
+            g             = found[0]
+            chi_is_home   = int(g["homeTeam"]["teamTricode"] == BULLS_ABBR)
+            chi_opponent  = (g["awayTeam"]["teamTricode"] if chi_is_home else g["homeTeam"]["teamTricode"])
+            chi_game_date = check_date
+            print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent} on {check_str}  [CDN]")
+            break
+    if chi_is_home is None:
+        print(f"  → CHI has no game in the next 7 days [CDN]")
 except Exception as exc:
     print(f"  → CDN schedule failed: {exc}")
 
-# ── 2. Fallback: ESPN public API ──────────────────────────────────────────────
+# ── 2. Fallback: ESPN public API — scan next 7 days ───────────────────────────
 if chi_is_home is None:
     try:
         print("  → Trying ESPN API fallback...")
-        espn_result = _find_chi_game_espn(tomorrow_str)
-        if espn_result:
-            chi_is_home, chi_opponent = espn_result
-            print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent}  [ESPN]")
-        else:
-            print(f"  → CHI has no game on {tomorrow_str} [ESPN]")
+        for offset in range(1, 8):
+            check_date  = today + pd.Timedelta(days=offset)
+            check_str   = check_date.strftime("%Y-%m-%d")
+            espn_result = _find_chi_game_espn(check_str)
+            if espn_result:
+                chi_is_home, chi_opponent = espn_result
+                chi_game_date = check_date
+                print(f"  → CHI {'(HOME)' if chi_is_home else '(AWAY)'} vs {chi_opponent} on {check_str}  [ESPN]")
+                break
+        if chi_is_home is None:
+            print(f"  → CHI has no game in the next 7 days [ESPN]")
     except Exception as exc2:
         print(f"  → ESPN fallback also failed: {exc2}")
 
@@ -528,11 +537,21 @@ if chi_is_home is not None and chi_opponent is not None:
     cutoff = df_model["GAME_DATE"].max() - pd.Timedelta(days=30)
     latest_chi = latest_chi[latest_chi["GAME_DATE"] >= cutoff].copy()
 
+    # Keep only players whose most recent game (any team) is with CHI
+    current_team = (
+        df_raw.sort_values("GAME_DATE")
+        .groupby("PLAYER_ID")["TEAM_ABBREVIATION"]
+        .last()
+    )
+    latest_chi = latest_chi[
+        latest_chi["PLAYER_ID"].map(current_team) == BULLS_ABBR
+    ].copy()
+
     # Override context features for tomorrow's game
     latest_chi["IS_HOME"]  = chi_is_home
     latest_chi["OPPONENT"] = chi_opponent
     latest_chi["DAYS_REST"] = (
-        pd.Timestamp(tomorrow_date) - pd.to_datetime(latest_chi["GAME_DATE"])
+        pd.Timestamp(chi_game_date) - pd.to_datetime(latest_chi["GAME_DATE"])
     ).dt.days
 
     # Get opponent defensive features (most recent row for that team)
@@ -555,7 +574,7 @@ if chi_is_home is not None and chi_opponent is not None:
     latest_chi["PTS_PREDICTED"] = model.get_booster().inplace_predict(X_tomorrow.to_numpy()).clip(0).round(1)
 
     chi_next_game = {
-        "game_date": tomorrow_str,
+        "game_date": chi_game_date.strftime("%Y-%m-%d"),
         "opponent":  chi_opponent,
         "is_home":   chi_is_home,
         "predictions": (

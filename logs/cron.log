@@ -1,0 +1,2 @@
+/bin/sh: 1: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/run_pipeline.sh: Permission denied
+YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/run_pipeline.sh: 28: source: not found

@@ -4,17 +4,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import json
-import webbrowser
 import time
 import streamlit.components.v1 as components
 import unicodedata
 from datetime import datetime
 
-# 1. Page Configuration
-st.set_page_config(layout="wide", page_title="Bulls Eye: Predictive Engine")
-
 # --- PATH LOGIC ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 1. Page Configuration
+st.set_page_config(layout="wide", page_title="Bulls Eye: Predictive Engine",
+                   page_icon=os.path.join(BASE_DIR, "images", "bull.png"))
+
+# Home button — top right, before header
+st.divider()
+_, _home_col = st.columns([7, 2])
+with _home_col:
+    st.link_button("⌂ Home", "https://gsx-2.com", type="primary", use_container_width=True)
+
 IMAGE_PATH = os.path.join(BASE_DIR, "images")
 JSON_10_LAST_RESULTS_PATH = os.path.join(BASE_DIR, "model", "bulls_dashboard.json")
 JSON_QUANTILES_PATH = os.path.join(BASE_DIR, "model", "bulls_dashboard_quantile.json")
@@ -27,23 +34,22 @@ def get_img(name):
 def normalize_str(text):
     return unicodedata.normalize('NFKD', text).encode('ascii', 'ignore').decode('ascii').replace(' ', '_')
 
-@st.cache_data
+@st.cache_data(ttl=1800)
 def load_prediction_data():
     with open(JSON_10_LAST_RESULTS_PATH, 'r') as f:
         return json.load(f)
 
-@st.cache_data
+@st.cache_data(ttl=1800)
 def load_victory_data():
     with open(JSON_VICTORY_PREDICTION_PATH, 'r') as f:
         return json.load(f)
-    
-@st.cache_data
-def load_quantiles_data():
 
+@st.cache_data(ttl=1800)
+def load_quantiles_data():
     with open(JSON_QUANTILES_PATH, 'r') as f:
         return json.load(f)
 
-@st.cache_data
+@st.cache_data(ttl=1800)
 def load_historical_data():
     return pd.read_csv(CSV_PATH)
 
@@ -202,7 +208,7 @@ st.divider()
 # --- 4 & 5. LAST 10 GAMES TREND ---
 st.image(get_img("last_10_games.png"), use_container_width=True)
 
-chi_history = master_df[master_df['TEAM_ABBREVIATION'] == 'CHI'].copy()
+chi_history = master_df.copy()
 chi_history['GAME_DATE'] = pd.to_datetime(chi_history['GAME_DATE'])
 
 for row_start in range(0, 6, 3):
@@ -274,9 +280,10 @@ st.divider()
 
 # --- 7 to 12. PIPELINES AND TEAM ---
 st.image(get_img("data_transformation_pipeline.png"), use_container_width=True)
-_pipeline_html_path   = os.path.join(BASE_DIR, "images", "bulls_pipeline.html")
-_victory_html_path    = os.path.join(BASE_DIR, "images", "bulls_win_probability_pipeline.html")
-_disclaimer_html_path = os.path.join(BASE_DIR, "images", "bulls_eye_disclaimer.html")
+_STATIC_BASE = "/bullseye/docs"
+_pipeline_url   = f"{_STATIC_BASE}/bulls_pipeline.html"
+_victory_url    = f"{_STATIC_BASE}/bulls_win_probability_pipeline.html"
+_disclaimer_url = f"{_STATIC_BASE}/bulls_eye_disclaimer.html"
 st.markdown("""
     <style>
     div[data-testid="stButton"] > button,
@@ -288,23 +295,23 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Debounce: evitar doble-open por doble rerun de Streamlit
-def _open_once(key, path):
+# Abre URL en nueva pestaña del navegador del usuario (no del servidor)
+def _open_once(key, url):
     last = st.session_state.get(f"_btn_ts_{key}", 0)
     if time.time() - last > 1.5:
-        webbrowser.open(f"file://{path}")
+        components.html(f"<script>window.open('{url}', '_blank');</script>", height=0)
         st.session_state[f"_btn_ts_{key}"] = time.time()
 
 _, btn_c1, btn_c2, btn_c3, btn_c4, _ = st.columns([1, 2, 2, 2, 2, 1])
 with btn_c1:
     if st.button("Individual Forecast Pipeline", type="primary", use_container_width=True):
-        _open_once("pipeline", _pipeline_html_path)
+        _open_once("pipeline", _pipeline_url)
 with btn_c2:
     if st.button("Victory Pipeline Forecast", type="secondary", use_container_width=True):
-        _open_once("victory", _victory_html_path)
+        _open_once("victory", _victory_url)
 with btn_c3:
     if st.button("Disclaimer", type="secondary", use_container_width=True):
-        _open_once("disclaimer", _disclaimer_html_path)
+        _open_once("disclaimer", _disclaimer_url)
 with btn_c4:
     st.link_button("Git Hub Project", "https://github.com/Gustavo2020/bulls_eye_prediction",
                    type="primary", use_container_width=True)

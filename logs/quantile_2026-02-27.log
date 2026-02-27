@@ -1,0 +1,148 @@
+PyTorch device : cuda
+  GPU           : NVIDIA GeForce RTX 5080 Laptop GPU
+  VRAM          : 16.6 GB
+  CUDA version  : 12.8
+
+Model dir : YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model
+
+=======================================================
+PHASE 1 — DATA INGESTION
+=======================================================
+Existing data: 97,052 rows — last game: 2026-02-27
+Checking for new 2025-26 games (skipping 4,540 known)...
+      200/399 probed  |  63 player-game rows so far
+  → No new games since last update.
+
+=======================================================
+PHASE 2 — FEATURE ENGINEERING
+=======================================================
+  Building rolling player features...
+  Building volatility features (v2)...
+  Building team defensive metrics...
+  → Feature dataset: (98281, 56)
+
+=======================================================
+PHASE 3 — MODEL TRAINING (Quantile XGBoost)
+=======================================================
+Training rows : 94,890  (dropped 3,391 NaN rows)
+  Train : 75,912 rows
+  Val   : 18,978 rows  (chronological 80/20)
+
+  ── Training q10 (α=0.1) ──
+[0]	validation_0-quantile:0.90926
+[50]	validation_0-quantile:0.67515
+[100]	validation_0-quantile:0.66197
+[150]	validation_0-quantile:0.66125
+[182]	validation_0-quantile:0.66150
+YOUR_HOME_DIR/MSADS_/Time_series_31006/tsenvi/lib/python3.12/site-packages/xgboost/core.py:751: UserWarning: [08:34:53] WARNING: /__w/xgboost/xgboost/src/common/error_msg.cc:62: Falling back to prediction using DMatrix due to mismatched devices. This might lead to higher memory usage and slower performance. XGBoost is running on: cuda:0, while the input data is on: cpu.
+Potential solutions:
+- Use a data structure that matches the device ordinal in the booster.
+- Set the device for booster before call to inplace_predict.
+
+This warning will only be shown once.
+
+  return func(**kwargs)
+  → Saved: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q10_quantile.json
+
+  ── Training q50 (α=0.5) ──
+[0]	validation_0-quantile:3.00352
+[50]	validation_0-quantile:2.00452
+[100]	validation_0-quantile:1.98950
+[150]	validation_0-quantile:1.98921
+[160]	validation_0-quantile:1.98917
+  q50  → MAE: 3.978  RMSE: 5.390  R²: 0.383
+  → Saved: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q50_quantile.json
+
+  ── Training q90 (α=0.9) ──
+[0]	validation_0-quantile:1.79706
+[50]	validation_0-quantile:1.08964
+[100]	validation_0-quantile:1.07434
+[127]	validation_0-quantile:1.07472
+
+  Raw [q10–q90] coverage : 73.8%  (target ~80%)  avg width: 12.2 pts  ← before calibration
+  → Saved: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q90_quantile.json
+
+
+=======================================================
+PHASE 3.5 — PLAYER-LEVEL INTERVAL CALIBRATION (v2)
+=======================================================
+  Rationale: the global q10/q90 models learn average dataset variance.
+  A consistent role player (e.g. Yabusele) ends up with the same
+  interval width as a volatile star. Per-player calibration shrinks
+  intervals for consistent players and widens them for volatile ones
+  so that each player individually achieves ~80% empirical coverage.
+
+  Global fallback scale factor : 0.9635
+  Players calibrated : 238  (≥10 val games each)
+  Players using global fallback : 44
+
+  Sample calibration factors (factor < 1.0 → narrow, > 1.0 → wide):
+    Mark Williams                 factor: 0.9604  ≈ unchanged
+    Jeremy Sochan                 factor: 1.0623  ← widened
+    Wendell Moore Jr.             factor: 0.7882  ← narrowed
+    Kendall Brown                 factor: 0.7260  ← narrowed
+    Kennedy Chandler              factor: 0.6976  ← narrowed
+    Jalen Williams                factor: 0.9722  ≈ unchanged
+    Orlando Robinson              factor: 0.7898  ← narrowed
+    Patrick Baldwin Jr.           factor: 0.9843  ≈ unchanged
+    Walker Kessler                factor: 0.8587  ← narrowed
+    Jaylin Williams               factor: 0.8482  ← narrowed
+
+  Post-calibration [q10–q90] coverage : 79.9%  (target ~80%)
+  Post-calibration avg interval width : 11.2 pts  (was 12.2 pts)
+
+  → Calibration factors saved : YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/calibration_factors.json
+
+=======================================================
+PHASE 4 — PREDICTIONS HISTORY
+=======================================================
+  → 94,890 rows saved to YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/predictions_history_quantile.csv
+  → Val interval coverage [q10–q90] : 80.9%  (target ~80%)
+  → Val avg interval width           : 11.2 pts
+
+=======================================================
+PHASE 5 — NEXT GAME PREDICTIONS (CHI)
+=======================================================
+Fetching season schedule from cdn.nba.com...
+  → CHI (HOME) vs MIL on 2026-03-01  [CDN]
+  → 16 CHI players to predict
+
+  Sample predictions (calibrated):
+  Player                        Floor  Median  Ceiling  Width  Scale
+  ----------------------------  -----  ------  -------  -----  -----
+  Anfernee Simons                 8.3    16.9     25.6   17.3  0.9635
+  Matas Buzelis                   5.2    14.1     22.9   17.7  0.9988
+  Josh Giddey                     3.6    11.9     20.3   16.7  0.9635
+  Isaac Okoro                     3.8    11.2     18.7   14.9  0.9635
+  Jalen Smith                     3.2    10.7     18.2   15.0  0.9635
+  Collin Sexton                   2.3    10.6     19.0   16.7  0.9635
+  Tre Jones                       3.2    10.5     17.8   14.6  0.9635
+  Jaden Ivey                      2.1     9.8     17.5   15.4  0.9635
+
+=======================================================
+PHASE 6 — BULLS DASHBOARD JSON
+=======================================================
+  → Dashboard saved : YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/bulls_dashboard_quantile.json
+  → Recent games    : 10
+  → Next game       : 2026-03-01
+
+=======================================================
+DONE
+=======================================================
+  q50 MAE    : 3.978 pts  ← compare vs baseline 4.010
+  q50 RMSE   : 5.390 pts
+  q50 R²     : 0.383
+
+  Interval [q10–q90] — RAW       : coverage 73.8%  | width 12.2 pts
+  Interval [q10–q90] — CALIBRATED: coverage 79.9%  | width 11.2 pts  ← target ~80%
+
+  Output files:
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/df_raw.parquet
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/df_model_quantile.parquet
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q10_quantile.json  ← q10 model
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q50_quantile.json  ← q50 model
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_q90_quantile.json  ← q90 model
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/calibration_factors.json  ← per-player scale factors
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/predictions_history_quantile.csv
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/bulls_dashboard_quantile.json  ← web service JSON
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/meta_quantile.json

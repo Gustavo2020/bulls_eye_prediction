@@ -1,0 +1,13 @@
+[Unit]
+Description=Notify ntfy when Bulls Eye service fails
+
+[Service]
+Type=oneshot
+User=YOUR_USERNAME
+ExecStart=/bin/bash -c '\
+    curl -s \
+    -H "Title: Bulls Eye DOWN" \
+    -H "Tags: x,rotating_light" \
+    -H "Priority: high" \
+    -d "El servicio bullseye.service cayó en $(hostname) — $(date). Revisa: journalctl -u bullseye -n 30" \
+    https://ntfy.sh/YOUR-NTFY-TOPIC'

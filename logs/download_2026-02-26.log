@@ -1,0 +1,84 @@
+PyTorch device : cuda
+  GPU           : NVIDIA GeForce RTX 5080 Laptop GPU
+  VRAM          : 16.6 GB
+  CUDA version  : 12.8
+
+Model dir : YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model
+
+=======================================================
+PHASE 1 — DATA INGESTION
+=======================================================
+Existing data: 96,716 rows — last game: 2026-02-25
+Checking for new 2025-26 games (skipping 4,524 known)...
+      200/415 probed  |  208 player-game rows so far
+      400/415 probed  |  837 player-game rows so far
+  → 127 new player-game rows
+  → Raw data updated: 96,843 total rows
+
+=======================================================
+PHASE 2 — FEATURE ENGINEERING
+=======================================================
+  Building rolling player features...
+  Building team defensive metrics...
+  → Feature dataset: (98072, 50)
+
+=======================================================
+PHASE 3 — MODEL TRAINING (XGBoost GPU)
+=======================================================
+Training rows : 95,503  (dropped 2,569 NaN rows)
+[0]	validation_0-mae:6.78492
+[50]	validation_0-mae:4.11450
+[100]	validation_0-mae:4.01819
+[150]	validation_0-mae:4.01042
+[200]	validation_0-mae:4.00915
+[250]	validation_0-mae:4.00873
+[273]	validation_0-mae:4.00876
+YOUR_HOME_DIR/MSADS_/Time_series_31006/tsenvi/lib/python3.12/site-packages/xgboost/core.py:751: UserWarning: [06:24:49] WARNING: /__w/xgboost/xgboost/src/common/error_msg.cc:62: Falling back to prediction using DMatrix due to mismatched devices. This might lead to higher memory usage and slower performance. XGBoost is running on: cuda:0, while the input data is on: cpu.
+Potential solutions:
+- Use a data structure that matches the device ordinal in the booster.
+- Set the device for booster before call to inplace_predict.
+
+This warning will only be shown once.
+
+  return func(**kwargs)
+
+  Val MAE  : 4.01 pts
+  Val RMSE : 5.28 pts
+  → Model saved: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_model.json
+
+=======================================================
+PHASE 4 — PREDICTIONS HISTORY
+=======================================================
+  → 95,503 rows saved to YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/predictions_history.csv
+
+=======================================================
+PHASE 5 — TOMORROW'S PREDICTIONS (CHI)
+=======================================================
+Fetching season schedule from cdn.nba.com...
+  → CHI has no game on 2026-02-27 [CDN]
+  → Trying ESPN API fallback...
+  → CHI has no game on 2026-02-27 [ESPN]
+
+=======================================================
+PHASE 6 — BULLS DASHBOARD JSON
+=======================================================
+  → Dashboard saved: YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/bulls_dashboard.json
+  → Recent games   : 10
+  → Next game      : N/A
+
+=======================================================
+DONE
+=======================================================
+  Last game date : 2026-02-26
+  Total rows     : 98,072
+  Val MAE        : 4.009 pts
+  Val RMSE       : 5.281 pts
+  Best XGB iter  : 243
+
+  Output files:
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/df_raw.parquet
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/df_model.parquet
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/nba_xgb_model.json
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/predictions_history.csv
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/bulls_dashboard.json  ← web service JSON
+    YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/model/meta.json

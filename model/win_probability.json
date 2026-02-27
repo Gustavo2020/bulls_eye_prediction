@@ -1,29 +1,29 @@
 {
-  "game_date": "2026-02-26",
-  "opponent": "POR",
+  "game_date": "2026-03-01",
+  "opponent": "MIL",
   "is_home": 1,
-  "chi_projected_pts": 94.3,
-  "win_probability": 0.352,
+  "chi_projected_pts": 80.4,
+  "win_probability": 0.221,
   "predicted_result": "L",
-  "confidence": "medium",
+  "confidence": "high",
   "chi_recent_form": {
     "last_5_record": "0-5",
-    "avg_pts_scored_5": 102.8,
-    "avg_pts_allowed_5": 119.2,
-    "avg_margin_5": -16.4
+    "avg_pts_scored_5": 104.2,
+    "avg_pts_allowed_5": 118.6,
+    "avg_margin_5": -14.4
   },
   "opponent_recent_form": {
-    "team": "POR",
-    "last_5_record": "3-2",
-    "avg_pts_scored_5": 114.8,
-    "avg_pts_allowed_5": 120.8,
-    "avg_margin_5": -6.0
+    "team": "MIL",
+    "last_5_record": "4-1",
+    "avg_pts_scored_5": 117.8,
+    "avg_pts_allowed_5": 113.2,
+    "avg_margin_5": 4.6
   },
   "model_metrics": {
-    "val_accuracy": 0.628,
-    "val_auc": 0.675,
+    "val_accuracy": 0.626,
+    "val_auc": 0.677,
     "val_logloss": 0.644,
-    "val_mae": 0.453,
-    "val_games": 1844
+    "val_mae": 0.454,
+    "val_games": 1858
   }
 }
