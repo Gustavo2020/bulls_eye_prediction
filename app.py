@@ -279,7 +279,8 @@ _victory_html_path    = os.path.join(BASE_DIR, "images", "bulls_win_probability_
 _disclaimer_html_path = os.path.join(BASE_DIR, "images", "bulls_eye_disclaimer.html")
 st.markdown("""
     <style>
-    div[data-testid="stButton"] > button {
+    div[data-testid="stButton"] > button,
+    div[data-testid="stLinkButton"] > a {
         font-size: 2rem !important;
         padding: 24px 0 !important;
         border-radius: 12px !important;
@@ -294,7 +295,7 @@ def _open_once(key, path):
         webbrowser.open(f"file://{path}")
         st.session_state[f"_btn_ts_{key}"] = time.time()
 
-_, btn_c1, btn_c2, btn_c3, _ = st.columns([1, 2, 2, 2, 1])
+_, btn_c1, btn_c2, btn_c3, btn_c4, _ = st.columns([1, 2, 2, 2, 2, 1])
 with btn_c1:
     if st.button("Individual Forecast Pipeline", type="primary", use_container_width=True):
         _open_once("pipeline", _pipeline_html_path)
@@ -304,6 +305,9 @@ with btn_c2:
 with btn_c3:
     if st.button("Disclaimer", type="secondary", use_container_width=True):
         _open_once("disclaimer", _disclaimer_html_path)
+with btn_c4:
+    st.link_button("Git Hub Project", "https://github.com/Gustavo2020/bulls_eye_prediction",
+                   type="primary", use_container_width=True)
 
 components.html("""
 <script>
