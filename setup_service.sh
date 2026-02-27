@@ -1,9 +1,11 @@
 #!/bin/bash
 # Bulls Eye — Service Setup
 # Run with: sudo bash setup_service.sh
+#
+# Before running, ensure .env is configured (copy from .env.example).
 
 set -e
-PROJECT="YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF"
+PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "==> Installing systemd services..."
 cp "$PROJECT/bullseye.service"                /etc/systemd/system/bullseye.service
@@ -28,7 +30,8 @@ else
 import re, sys
 
 conf   = "/etc/nginx/sites-available/gsx-2.com"
-block  = open("YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/nginx_bullseye.conf").read()
+import os
+block  = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "nginx_bullseye.conf")).read()
 text   = open(conf).read()
 
 # Insert the location block before the last closing brace of the file

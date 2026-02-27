@@ -1,13 +1,18 @@
+# Bulls Eye — failure notification service (TEMPLATE)
+# Before installing, replace YOUR_USERNAME and YOUR_PROJECT_PATH with your actual values.
+# NTFY_TOPIC is loaded from the .env file in YOUR_PROJECT_PATH.
+
 [Unit]
 Description=Notify ntfy when Bulls Eye service fails
 
 [Service]
 Type=oneshot
 User=YOUR_USERNAME
+EnvironmentFile=YOUR_PROJECT_PATH/.env
 ExecStart=/bin/bash -c '\
     curl -s \
     -H "Title: Bulls Eye DOWN" \
     -H "Tags: x,rotating_light" \
     -H "Priority: high" \
     -d "El servicio bullseye.service cayó en $(hostname) — $(date). Revisa: journalctl -u bullseye -n 30" \
-    https://ntfy.sh/YOUR-NTFY-TOPIC'
+    "${NTFY_TOPIC}"'

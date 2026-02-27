@@ -1,3 +1,7 @@
+# Bulls Eye — systemd service unit (TEMPLATE)
+# Before installing, replace YOUR_USERNAME and YOUR_PROJECT_PATH with your actual values.
+# Install with: sudo bash setup_service.sh
+
 [Unit]
 Description=Bulls Eye Predictive Engine (Streamlit)
 After=network.target
@@ -6,23 +10,23 @@ OnFailure=bullseye-notify-failure.service
 [Service]
 Type=simple
 User=YOUR_USERNAME
-WorkingDirectory=YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF
+WorkingDirectory=YOUR_PROJECT_PATH
 
 # Verify venv and key packages before starting
 ExecStartPre=/bin/bash -c '\
-    YOUR_HOME_DIR/MSADS_/Time_series_31006/tsenvi/bin/python -c \
+    YOUR_PROJECT_PATH/../tsenvi/bin/python -c \
     "import streamlit, pandas, numpy, matplotlib, xgboost" \
     || (echo "venv check failed" && exit 1)'
 
-ExecStart=YOUR_HOME_DIR/MSADS_/Time_series_31006/tsenvi/bin/streamlit run app.py
+ExecStart=YOUR_PROJECT_PATH/../tsenvi/bin/streamlit run app.py
 
 Restart=on-failure
 RestartSec=30
 StartLimitIntervalSec=300
 StartLimitBurst=3
 
-StandardOutput=append:YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/logs/streamlit.log
-StandardError=append:YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF/logs/streamlit.log
+StandardOutput=append:YOUR_PROJECT_PATH/logs/streamlit.log
+StandardError=append:YOUR_PROJECT_PATH/logs/streamlit.log
 
 [Install]
 WantedBy=multi-user.target

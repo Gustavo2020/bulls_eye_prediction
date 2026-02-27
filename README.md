@@ -152,7 +152,7 @@ The production deployment uses the following stack:
 | Process manager | systemd (`bullseye.service`) |
 | Reverse proxy | nginx (`location ^~ /bullseye`) |
 | DNS / TLS | Cloudflare Tunnel → nginx port 80 |
-| Push alerts | ntfy.sh (`legion-9f3a2c-alerts` topic) |
+| Push alerts | ntfy.sh (topic configured via `.env`) |
 | Static docs | nginx alias → `images/` directory |
 
 ### One-time server setup

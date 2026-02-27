@@ -1,9 +1,15 @@
 #!/bin/bash
 # Bulls Eye health check — runs every 5 min via cron
 # Sends ntfy alert if the app is not responding
+#
+# Requires a .env file in the same directory. Copy .env.example and configure it.
 
-NTFY="https://ntfy.sh/YOUR-NTFY-TOPIC"
-URL="http://127.0.0.1:8502/bullseye/healthz"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/.env" ] && source "$SCRIPT_DIR/.env"
+
+NTFY="${NTFY_TOPIC:?ERROR: NTFY_TOPIC not set. Copy .env.example to .env and configure it.}"
+PORT="${APP_PORT:-8502}"
+URL="http://127.0.0.1:${PORT}/bullseye/healthz"
 
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$URL")
 

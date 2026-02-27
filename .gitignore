@@ -1,0 +1,21 @@
+# Environment variables — NEVER commit this file
+.env
+
+# Generated model artifacts and training data (large binary files)
+model/
+
+# Pipeline and service logs
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS files
+.DS_Store
+Thumbs.db

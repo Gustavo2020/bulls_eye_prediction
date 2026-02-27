@@ -2,10 +2,16 @@
 #!/bin/bash
 # Bulls Eye — Daily Pipeline Runner
 # Runs the 3 scripts sequentially and sends ntfy notifications on success/error.
+#
+# Requires a .env file in the same directory. Copy .env.example and configure it:
+#   cp .env.example .env && nano .env
 
-VENV="YOUR_HOME_DIR/MSADS_/Time_series_31006/tsenvi/bin/activate"
-PROJECT="YOUR_HOME_DIR/MSADS_/Time_series_31006/FINAL_PROJECT_VF"
-NTFY="https://ntfy.sh/YOUR-NTFY-TOPIC"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/.env" ] && source "$SCRIPT_DIR/.env"
+
+VENV="${VENV_DIR}/bin/activate"
+PROJECT="${PROJECT_DIR:-$SCRIPT_DIR}"
+NTFY="${NTFY_TOPIC:?ERROR: NTFY_TOPIC not set. Copy .env.example to .env and configure it.}"
 LOG_DIR="$PROJECT/logs"
 DATE=$(date '+%Y-%m-%d')
 
